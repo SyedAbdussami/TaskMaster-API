@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.UUID;
 
 //import javax.persistence.*;
 
@@ -17,10 +18,16 @@ import java.util.List;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long userId;
+    private UUID userId;
 
-    @Column(name = "Name")
+    @Column(name = "UserName")
     private String userName;
+
+    @Column(name = "FirstName")
+    private String firstName;
+
+    @Column(name="LastName")
+    private String lastName;
 
     @Column(name="Occupation")
     private String userOccupation;
@@ -28,13 +35,16 @@ public class User {
     @Column(name="Status")
     private String userStatus;
 
+    @Column(name="DateJoined")
+    private String dateJoined;
+
     @ManyToMany
     private List<Project> projects;
 
 //    public User() {
 //    }
 
-    public User(long userId, String userName, String userOccupation, String userStatus, List<Project> projects) {
+    public User(UUID userId, String userName, String userOccupation, String userStatus, List<Project> projects) {
         this.userId = userId;
         this.userName = userName;
         this.userOccupation = userOccupation;

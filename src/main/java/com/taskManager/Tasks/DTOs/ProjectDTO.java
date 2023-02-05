@@ -7,21 +7,22 @@ import lombok.Setter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 
 @Getter
 @Setter
 public class ProjectDTO {
-    private static final SimpleDateFormat dateFormat
-            = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
-    private long projectId;
+    private UUID projectId;
 
     private String projectName;
 
     private String projectDescription;
 
-    private Date projectCreatedDate;
+    private String projectCreatedDate;
 
-    private List<User> assignedUsersProject;
+    private List<UUID> userIds;
+
+    private List<User> users;
 }

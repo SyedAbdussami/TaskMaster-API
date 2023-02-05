@@ -3,11 +3,13 @@ package com.taskManager.Tasks.DTOs;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 public class UserDTO {
 
-    private long userId;
+    private UUID userId;
 
     private String userName;
 
@@ -18,6 +20,10 @@ public class UserDTO {
     private String dateJoined;
 
     private String approvalStatus="UnApproved";
+
+    private String firstName;
+
+    private String lastName;
 
 
 }

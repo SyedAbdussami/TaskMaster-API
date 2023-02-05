@@ -6,9 +6,11 @@ import com.taskManager.Tasks.Repositories.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PutMapping;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -28,6 +30,10 @@ public class UserService {
         return (List<User>) userRepo.findAll();
     }
 
+    public User getUserById(UUID userId){
+        return  userRepo.findUsersByUserId(userId);
+    }
+
     public boolean userCreatedVerification(User user){
         String userName=user.getUserName();
         if(userRepo.findUserByUserName(userName)==null){
@@ -36,9 +42,38 @@ public class UserService {
         return userRepo.findUserByUserName(userName).getUserName().equals(userName);
     }
 
-    public boolean userCreatedVerificationUsingId(long userId){
-        Set<Long> actualUserIds=userRepo.getAllUserIds();
+    public boolean userCreatedVerificationUsingId(UUID userId){
+        Set<UUID> actualUserIds=userRepo.getAllUserIds();
         return actualUserIds.contains(userId);
+    }
+
+    //complete user update.
+    public User updateUser(User user, UUID userId){
+        if(getUserById(userId)==null){
+            throw new CustomException("User does not exist","Please contact the admin", HttpStatus.BAD_REQUEST);
+        }
+//        if(userRepo.findUserByFirstNameAndLastName(user.getFirstName(), user.getLastName())==null){
+//            throw new CustomException("User does not exist","Please contact the admin", HttpStatus.BAD_REQUEST);
+//        }
+        user.setUserId(userId);
+        user.setDateJoined(getUserById(userId).getDateJoined());
+        userRepo.save(user);
+        return getUserById(userId);
+    }
+
+
+    @PutMapping
+    public User updateUserName(User user, UUID userId){
+        if(getUserById(userId)==null){
+            throw new CustomException("User does not exist","Please contact the admin", HttpStatus.BAD_REQUEST);
+        }
+//        if(userRepo.findUserByFirstNameAndLastName(user.getFirstName(), user.getLastName())==null){
+//            throw new CustomException("User does not exist","Please contact the admin", HttpStatus.BAD_REQUEST);
+//        }
+        user.setUserId(userId);
+        user.setDateJoined(getUserById(userId).getDateJoined());
+        userRepo.save(user);
+        return getUserById(userId);
     }
 
 }

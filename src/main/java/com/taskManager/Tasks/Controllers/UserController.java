@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/user")
@@ -41,11 +42,16 @@ public class UserController {
 
     @PostMapping
     private UserDTO createUser(@RequestBody User user) {
+        user.setDateJoined(dtf.format(LocalDateTime.now()));
         userService.addUser(user);
-        UserDTO userDTO = mapper.map(user, UserDTO.class);
-        userDTO.setDateJoined(dtf.format(LocalDateTime.now()));
-        return userDTO;
+//        userDTO.setDateJoined(dtf.format(LocalDateTime.now()));
+        return mapper.map(user, UserDTO.class);
     }
 
+    @PutMapping(value = "/{userId}")
+    private UserDTO updateUser(@RequestBody User user,@PathVariable UUID userId){
+        return mapper.map(userService.updateUser(user,userId),UserDTO.class);
+    }
 
+    //update user using username/first/lastname
 }

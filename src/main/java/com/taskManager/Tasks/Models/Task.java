@@ -6,6 +6,7 @@ import lombok.Setter;
 
 
 import java.util.Date;
+import java.util.UUID;
 
 @Entity
 @Table(name="TASKS")
@@ -15,7 +16,7 @@ public class Task {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long taskId;
+    private UUID taskId;
 
     @Column(name = "Task Name")
     private String taskName;

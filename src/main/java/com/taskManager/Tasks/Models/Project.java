@@ -10,6 +10,7 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "PROJECT")
@@ -27,8 +28,8 @@ public class Project {
     @Column(name="Project Description")
     private String projectDescription;
 
-    @Column(name="Date")
-    private Date createdAt;
+    @Transient
+    private String createdAt;
 
 //    @Column(name = "Assigned Users")
 //    @OneToMany(mappedBy = "project")
@@ -39,13 +40,13 @@ public class Project {
 //    private List<User> users=new ArrayList<>();
 
     @ManyToMany(cascade=CascadeType.ALL)
-    @JoinTable(name = "Project_User",
+    @JoinTable(name = "Project_Users",
     joinColumns = @JoinColumn(name="projectId"),
     inverseJoinColumns = @JoinColumn(name="userId"))
     private List<User> users;
 
     @Transient
-    private List<Long> userIds;
+    private List<UUID> userIds;
 
 
 //    @Column(name="Created_Tasks")
@@ -58,7 +59,7 @@ public class Project {
 //    public Project() {
 //    }
 
-    public Project(long project_Id, String projectName, String projectDescription, Date createdAt, List<User> users) {
+    public Project(long project_Id, String projectName, String projectDescription, String createdAt, List<User> users) {
         this.projectId = project_Id;
         this.projectName = projectName;
         this.projectDescription = projectDescription;
