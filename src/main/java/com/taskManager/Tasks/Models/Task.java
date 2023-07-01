@@ -6,6 +6,7 @@ import lombok.Setter;
 
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -16,7 +17,7 @@ public class Task {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID taskId;
+    private long taskId;
 
     @Column(name = "Task Name")
     private String taskName;
@@ -33,6 +34,12 @@ public class Task {
     @ManyToOne
     @JoinColumn(name="projectId", nullable=false)
     private Project project;
+
+    @ManyToMany(cascade=CascadeType.ALL)
+    @JoinTable(name = "Tasks_Users",
+            joinColumns = @JoinColumn(name="taskId"),
+            inverseJoinColumns = @JoinColumn(name="userId"))
+    private List<User> users;
 
     public Task() {
     }

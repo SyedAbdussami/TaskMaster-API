@@ -45,8 +45,14 @@ public class Project {
     inverseJoinColumns = @JoinColumn(name="userId"))
     private List<User> users;
 
+    @OneToMany(mappedBy = "project")
+    private List<Task> tasks;
+
     @Transient
     private List<UUID> userIds;
+
+    @Transient
+    private List<long> taskIds;
 
 
 //    @Column(name="Created_Tasks")

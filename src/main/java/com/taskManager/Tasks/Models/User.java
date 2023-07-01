@@ -41,6 +41,9 @@ public class User {
     @ManyToMany
     private List<Project> projects;
 
+    @ManyToMany
+    private List<Task> tasks;
+
 //    public User() {
 //    }
 

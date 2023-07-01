@@ -1,8 +1,10 @@
 package com.taskManager.Tasks.DTOs;
 
+import com.taskManager.Tasks.Models.Project;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -24,6 +26,8 @@ public class UserDTO {
     private String firstName;
 
     private String lastName;
+
+    private List<Long> projectIds;
 
 
 }

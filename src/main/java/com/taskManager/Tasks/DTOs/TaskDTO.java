@@ -8,6 +8,7 @@ import lombok.Setter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 
 @Getter
@@ -23,9 +24,9 @@ public class TaskDTO {
 
     private String taskDescription;
 
-    private Date createdAt;
+    private String createdAt;
 
-    private List<User> assignedUsersTask;
+    private List<UUID> assignedUsersIds;
 
 //    public Date setDateForTask(){
 //        Date date=new Date();

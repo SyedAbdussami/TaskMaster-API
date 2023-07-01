@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,7 +32,13 @@ public class UserController {
         if(users.isEmpty()){
             return new ResponseEntity<>("No users created yet",HttpStatus.ACCEPTED);
         }
-        return new ResponseEntity<>(users, HttpStatus.ACCEPTED);
+        List<UserDTO> userDTOS =new ArrayList<>();
+        for(User user:users){
+            UserDTO usr1=mapper.map(user,UserDTO.class);
+            usr1.setProjectIds(userService.fetchUserProjects(user));
+            userDTOS.add(usr1);
+        }
+        return new ResponseEntity<>(userDTOS, HttpStatus.ACCEPTED);
     }
 
 //    @PostMapping
