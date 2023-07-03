@@ -124,4 +124,16 @@ public class UserService {
         return task.getUsers().stream().map(User::getUserId).toList();
     }
 
+    public List<User> getUsersByIds(List<UUID> userIds){
+        if(!verifyUsersCreatedUsingId(userIds)){
+            throw new CustomException("Users from the provided user list do not exist","Enter the correct id's",HttpStatus.BAD_REQUEST);
+        }
+        List<User> userList=new ArrayList<>();
+        for(UUID userId:userIds){
+            User user=getUserById(userId);
+            userList.add(user);
+        }
+        return userList;
+    }
+
 }

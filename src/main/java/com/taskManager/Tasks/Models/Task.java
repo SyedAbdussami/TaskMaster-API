@@ -1,5 +1,6 @@
 package com.taskManager.Tasks.Models;
 
+import com.taskManager.Tasks.Enum.TaskStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,6 +28,10 @@ public class Task {
 
     @Column(name="Date")
     private Date createdAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name="Status")
+    private TaskStatus taskStatus;
 
 //    @Column(name = "Assigned Users")
 //    private List<long> userIds;

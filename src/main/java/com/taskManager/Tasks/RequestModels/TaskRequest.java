@@ -1,5 +1,6 @@
 package com.taskManager.Tasks.RequestModels;
 
+import com.taskManager.Tasks.Enum.TaskStatus;
 import com.taskManager.Tasks.Models.Project;
 import com.taskManager.Tasks.Models.User;
 import jakarta.persistence.*;
@@ -26,6 +27,8 @@ public class TaskRequest {
     private Date createdAt;
 
     private long projectId;
+
+    private TaskStatus taskStatus;
 
 
     private List<UUID> users;

@@ -1,6 +1,7 @@
 package com.taskManager.Tasks.Services;
 
 import com.taskManager.Tasks.DTOs.TaskDTO;
+import com.taskManager.Tasks.Enum.TaskStatus;
 import com.taskManager.Tasks.Exception.CustomException;
 import com.taskManager.Tasks.Models.Task;
 import com.taskManager.Tasks.Models.User;
@@ -18,7 +19,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskService {
@@ -85,6 +88,49 @@ public class TaskService {
 
     public boolean verifyTaskCreated(long taskId){
          return taskRepo.findById(taskId).isPresent();
+    }
+    public TaskDTO updateTaskDetails(long taskId,TaskRequest taskRequest){
+         Task oldTask=taskRepo.getTaskByTaskId(taskId);
+         Task newTask=mapper.map(taskRequest,Task.class);
+         if(Objects.equals(newTask.getTaskName(), oldTask.getTaskName())){
+             newTask.setTaskId(oldTask.getTaskId());
+         }
+         taskRepo.save(newTask);
+        return mapper.map(newTask,TaskDTO.class);
+    }
+
+    public boolean deleteTask(long taskId){
+         Task task=taskRepo.getTaskByTaskId(taskId);
+         taskRepo.delete(task);
+        return taskRepo.getTaskByTaskId(taskId) == null;
+    }
+
+    public TaskDTO updateTaskStatus(long taskId,UUID userID,TaskRequest taskRequest){
+         if(!verifyTaskCreated(taskId)&&!userService.userCreatedVerificationUsingId(userID)){
+             throw new CustomException("Task or user does not exist","Try again later",HttpStatus.BAD_REQUEST);
+         }
+         Task task=taskRepo.getTaskByTaskId(taskId);
+        TaskStatus oldStatus=task.getTaskStatus();
+        TaskStatus newStatus=taskRequest.getTaskStatus();
+        if(oldStatus.equals(newStatus)){
+            throw new CustomException("Status can not be changed","Requested status change is same as current task status",HttpStatus.BAD_REQUEST);
+        }
+        task.setTaskStatus(newStatus);
+        taskRepo.save(task);
+        return mapper.map(task,TaskDTO.class);
+    }
+
+    public TaskDTO removeUsersFromTask(long taskId,List<UUID> userIds){
+         if(!verifyTaskCreated(taskId)&&!userService.verifyUsersCreatedUsingId(userIds)){
+             throw new CustomException("Either task or list of users Id's are not correct","Please try again correctly or contact the admin",HttpStatus.BAD_REQUEST);
+         }
+         Task task=taskRepo.getTaskByTaskId(taskId);
+         List<UUID> actualUsers= task.getUsers().stream().map(User::getUserId).toList();
+//         List<UUID> updatedUserList= task.getUsers().stream().filter(user. -> !userIds.contains(user.getUserId())).toList();
+        List<UUID> updatedUserList=actualUsers.stream().filter(userIds::contains).toList();
+        task.setUsers(userService.getUsersByIds(updatedUserList));
+        taskRepo.save(task);
+        return mapper.map(task,TaskDTO.class);
     }
 
 }

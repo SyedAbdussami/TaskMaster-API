@@ -1,5 +1,6 @@
 package com.taskManager.Tasks.DTOs;
 
+import com.taskManager.Tasks.Enum.TaskStatus;
 import com.taskManager.Tasks.Models.User;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,6 +28,8 @@ public class TaskDTO {
     private String createdAt;
 
     private List<UUID> assignedUsersIds;
+
+    private TaskStatus taskStatus;
 
 //    public Date setDateForTask(){
 //        Date date=new Date();
