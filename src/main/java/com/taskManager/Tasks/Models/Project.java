@@ -28,7 +28,7 @@ public class Project {
     @Column(name="Project Description")
     private String projectDescription;
 
-    @Transient
+    @Column(name="Date")
     private String createdAt;
 
 //    @Column(name = "Assigned Users")
@@ -52,7 +52,7 @@ public class Project {
     private List<UUID> userIds;
 
     @Transient
-    private List<long> taskIds;
+    private List<Long> taskIds;
 
 
 //    @Column(name="Created_Tasks")

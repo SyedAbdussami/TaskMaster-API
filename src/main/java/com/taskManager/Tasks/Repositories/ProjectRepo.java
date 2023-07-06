@@ -22,4 +22,7 @@ public interface ProjectRepo extends CrudRepository<Project,Long> {
 
     @Query("SELECT p.projectId FROM Project p JOIN p.users u WHERE u.userId = :userId")
     List<Long> findProjectsByUserId(@Param("userId") UUID userId);
+
+    @Query("select projectId from Project where projectName=:projectName")
+    Long findProjectIdByProjectName(@Param("projectName") String projectName);
 }

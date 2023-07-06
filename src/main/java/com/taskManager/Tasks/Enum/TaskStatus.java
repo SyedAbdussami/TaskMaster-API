@@ -2,8 +2,8 @@ package com.taskManager.Tasks.Enum;
 
 public enum TaskStatus {
     CREATED,
-    STARTED,
     IN_PROGRESS,
+    PENDING_REVIEW,
     COMPLETED,
     ARCHIVE
 }

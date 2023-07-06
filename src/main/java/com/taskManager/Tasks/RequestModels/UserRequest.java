@@ -15,6 +15,7 @@ import java.util.UUID;
 public class UserRequest {
     private UUID userId;
 
+    private String userName;
 
     private String firstName;
 
@@ -28,11 +29,8 @@ public class UserRequest {
     private String userStatus;
 
 
-    private String dateJoined;
+    private List<Long> projectIds;
 
 
-    private List<long> projectIds;
-
-
-    private List<long> tasksIds;
+    private List<Long> tasksIds;
 }

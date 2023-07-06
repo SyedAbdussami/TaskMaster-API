@@ -3,6 +3,7 @@ package com.taskManager.Tasks.Services;
 
 import com.taskManager.Tasks.Exception.CustomException;
 import com.taskManager.Tasks.Models.Project;
+import com.taskManager.Tasks.Models.Task;
 import com.taskManager.Tasks.Models.User;
 import com.taskManager.Tasks.Repositories.ProjectRepo;
 import org.modelmapper.ModelMapper;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectService {
@@ -22,16 +24,15 @@ public class ProjectService {
 
     @Autowired
     UserService userService;
-
     ModelMapper mapper=new ModelMapper();
 
     DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
-    public void addProject(Project project){
+    public long addProject(Project project){
         if (project.getUserIds().isEmpty()){
             project.setCreatedAt(dtf.format(LocalDateTime.now()));
             projectRepo.save(project);
-            return;
+            return projectRepo.findProjectIdByProjectName(project.getProjectName());
         }
         List<UUID> claimedUsersIds=project.getUserIds();
         List<User> claimedUsers=new ArrayList<>();
@@ -43,8 +44,10 @@ public class ProjectService {
         }
         project.setCreatedAt(dtf.format(LocalDateTime.now()));
         project.setUsers(claimedUsers);
+        project.setUserIds(claimedUsers.stream().map(User::getUserId).collect(Collectors.toList()));
         //mapping userids to users
         projectRepo.save(project);
+        return projectRepo.findProjectIdByProjectName(project.getProjectName());
     }
 
     public  List<Project> getAllProjects(){
@@ -108,7 +111,6 @@ public class ProjectService {
         users.remove(userToBeDeleted);
         return project;
     }
-
 
 
 }

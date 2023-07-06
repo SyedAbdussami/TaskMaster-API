@@ -9,6 +9,7 @@ import com.taskManager.Tasks.Repositories.ProjectRepo;
 import com.taskManager.Tasks.Repositories.TaskRepo;
 import com.taskManager.Tasks.Repositories.UserRepo;
 import com.taskManager.Tasks.RequestModels.TaskRequest;
+import com.taskManager.Tasks.RequestModels.TaskWorkRequest;
 import com.taskManager.Tasks.RequestModels.UserRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +83,7 @@ public class TaskService {
          taskRepo.save(task);
 
          TaskDTO updatedTaskDTO=mapper.map(task,TaskDTO.class);
-         updatedTaskDTO.setAssignedUsersIds(userService.fetchUserIdsByTask(taskId));
+         updatedTaskDTO.setAssignedUsersIds(fetchUserIdsByTask(taskId));
          return updatedTaskDTO;
     }
 
@@ -131,6 +132,35 @@ public class TaskService {
         task.setUsers(userService.getUsersByIds(updatedUserList));
         taskRepo.save(task);
         return mapper.map(task,TaskDTO.class);
+    }
+
+    public TaskDTO taskWorkUpdate(long taskId, TaskWorkRequest taskWorkRequest, UUID userId){
+        if(verifyTaskCreated(taskId)){
+            throw new CustomException("Given task does not exist","Please try again with a valid task ID",HttpStatus.NOT_FOUND);
+        }
+        if(userService.userCreatedVerificationUsingId(userId)){
+            throw new CustomException("Given task does not exist","Please try again with a valid task ID",HttpStatus.NOT_FOUND);
+        }
+
+        //Admin token check
+        Task task=getTaskById(taskId);
+        long projectId=task.getProject().getProjectId();
+        //Manager approval
+        return mapper.map(task,TaskDTO.class);
+
+    }
+
+    public List<UUID> fetchUserIdsByTask(long taskIds){
+        Task task= getTaskById(taskIds);
+        return task.getUsers().stream().map(User::getUserId).toList();
+    }
+
+    public long getProjectIdFromTaskId(long taskId){
+        if(!verifyTaskCreated(taskId)){
+            throw new CustomException("Task associated with task Id does not exist","Try again or contact the admin",HttpStatus.NOT_FOUND);
+        }
+        Task task=getTaskById(taskId);
+        return task.getProject().getProjectId();
     }
 
 }

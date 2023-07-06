@@ -14,13 +14,13 @@ import java.util.UUID;
 @Setter
 public class ProjectDTO {
 
-    private UUID projectId;
+    private long projectId;
 
     private String projectName;
 
     private String projectDescription;
 
-    private String projectCreatedDate;
+    private String createdAt;
 
     private List<UUID> userIds;
 

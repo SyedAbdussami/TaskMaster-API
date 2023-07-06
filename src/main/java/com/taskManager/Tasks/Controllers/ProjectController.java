@@ -15,9 +15,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("api/project/")
+@RequestMapping("api/project")
 public class ProjectController {
 
     DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
@@ -29,11 +30,14 @@ public class ProjectController {
     @GetMapping
     private ResponseEntity<?> getProjects(){
         List<Project> projectList=projectService.getAllProjects();
+        List<ProjectDTO> projectDTOS= projectList.stream().map(project -> mapper.map(project, ProjectDTO.class)).toList();
         System.out.println("GET Req for All Projects received");
         if(projectList.isEmpty()){
             return new ResponseEntity<>("No projects created yet",HttpStatus.ACCEPTED);
         }
-        return new ResponseEntity<>(projectList, HttpStatus.ACCEPTED);
+        System.out.println(projectList);
+        System.out.println(projectDTOS);
+        return new ResponseEntity<>(projectDTOS, HttpStatus.ACCEPTED);
     }
 
     @PostMapping
@@ -41,10 +45,11 @@ public class ProjectController {
         if(projectService.projectAlreadyExists(project)){
             throw new CustomException("Project Already Exists","Please Contact the admin",HttpStatus.BAD_REQUEST);
         }
-        projectService.addProject(project);
+        long projectId=projectService.addProject(project);
         System.out.println("new project added successfully");
         ProjectDTO projectDTO=mapper.map(project,ProjectDTO.class);
-        projectDTO.setProjectCreatedDate(dtf.format(LocalDateTime.now()));
+        projectDTO.setCreatedAt(dtf.format(LocalDateTime.now()));
+        projectDTO.setProjectId(projectId);
         return new ResponseEntity<>(projectDTO,HttpStatus.ACCEPTED);
     }
 

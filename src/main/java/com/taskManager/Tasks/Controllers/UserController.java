@@ -1,8 +1,11 @@
 package com.taskManager.Tasks.Controllers;
 
 
+import com.taskManager.Tasks.DTOs.TaskDTO;
 import com.taskManager.Tasks.DTOs.UserDTO;
 import com.taskManager.Tasks.Models.User;
+import com.taskManager.Tasks.RequestModels.TaskWorkRequest;
+import com.taskManager.Tasks.RequestModels.UserRequest;
 import com.taskManager.Tasks.Services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,9 +59,11 @@ public class UserController {
     }
 
     @PutMapping(value = "/{userId}")
-    private UserDTO updateUser(@RequestBody User user,@PathVariable UUID userId){
-        return mapper.map(userService.updateUser(user,userId),UserDTO.class);
+    private UserDTO updateUser(@RequestBody UserRequest userRequest, @PathVariable UUID userId){
+        return mapper.map(userService.updateUser(userRequest,userId),UserDTO.class);
     }
+
+
 
     //update user using username/first/lastname
 }
