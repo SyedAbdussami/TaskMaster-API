@@ -1,6 +1,7 @@
 package com.taskManager.Tasks.Services;
 
 
+import com.taskManager.Tasks.Enum.Role;
 import com.taskManager.Tasks.Exception.CustomException;
 import com.taskManager.Tasks.Models.Project;
 import com.taskManager.Tasks.Models.Task;
@@ -110,6 +111,11 @@ public class ProjectService {
         User userToBeDeleted=userService.getUserById(userId);
         users.remove(userToBeDeleted);
         return project;
+    }
+
+    public boolean checkProjectAccessPrivilege(UUID userId){
+        User user=userService.getUserById(userId);
+        return user.getUserRole().equals(Role.valueOf("ROLE_ADMIN"));
     }
 
 

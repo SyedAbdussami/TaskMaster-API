@@ -1,6 +1,7 @@
 package com.taskManager.Tasks.Services;
 
 import com.taskManager.Tasks.DTOs.TaskDTO;
+import com.taskManager.Tasks.Enum.Role;
 import com.taskManager.Tasks.Enum.TaskStatus;
 import com.taskManager.Tasks.Exception.CustomException;
 import com.taskManager.Tasks.Models.Task;
@@ -161,6 +162,11 @@ public class TaskService {
         }
         Task task=getTaskById(taskId);
         return task.getProject().getProjectId();
+    }
+
+    public boolean checkTaskAccessPrivilege(UUID userId){
+        User user=userService.getUserById(userId);
+        return !user.getUserRole().equals(Role.valueOf("ROLE_ADMIN"));
     }
 
 }

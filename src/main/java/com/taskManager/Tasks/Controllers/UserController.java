@@ -43,24 +43,31 @@ public class UserController {
         }
         return new ResponseEntity<>(userDTOS, HttpStatus.ACCEPTED);
     }
-
 //    @PostMapping
-//    private ResponseEntity<?> createUser(@RequestBody User user){
-//        userService.addUser(user);
-//        return new ResponseEntity<>(user.getUserName()+" created ",HttpStatus.CREATED);
+//    private ResponseEntity<?> createUser(@RequestBody UserRequest userRequest){
+//        userService.approveUserRequest(userRequest);
+//        return new ResponseEntity<>(userRequest.getUserName()+" created ",HttpStatus.CREATED);
 //    }
 
     @PostMapping
-    private UserDTO createUser(@RequestBody User user) {
+    private ResponseEntity<?> approveUserRequest(@RequestBody UserRequest user) {
         user.setDateJoined(dtf.format(LocalDateTime.now()));
-        userService.addUser(user);
+        userService.approveUserRequest(user);
 //        userDTO.setDateJoined(dtf.format(LocalDateTime.now()));
-        return mapper.map(user, UserDTO.class);
+        return new ResponseEntity<>(mapper.map(user, UserDTO.class),HttpStatus.ACCEPTED);
     }
 
     @PutMapping(value = "/{userId}")
-    private UserDTO updateUser(@RequestBody UserRequest userRequest, @PathVariable UUID userId){
-        return mapper.map(userService.updateUser(userRequest,userId),UserDTO.class);
+    private ResponseEntity<?> updateUser(@RequestBody UserRequest userRequest, @PathVariable UUID userId){
+        return new ResponseEntity<>(mapper.map(userService.updateUser(userRequest,userId),UserDTO.class),HttpStatus.ACCEPTED);
+    }
+
+    @PostMapping(value = "/{userId}/approve")
+    private ResponseEntity<?> approveUser(@PathVariable("userId") UUID userId){
+        if(userService.approveUser(userId)){
+            return new ResponseEntity<>(userService.getUserById(userId),HttpStatus.ACCEPTED);
+        }
+        return new ResponseEntity<>("Unable to approve the created user. Please Try again",HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 

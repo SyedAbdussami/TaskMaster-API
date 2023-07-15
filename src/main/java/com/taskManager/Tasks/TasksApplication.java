@@ -9,10 +9,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@SpringBootApplication(exclude = { SecurityAutoConfiguration.class })
+@SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 @EntityScan("com.taskManager.Tasks.Models")
-//@ComponentScan("com.taskManager.Tasks.*")
-//@EnableJpaRepositories("com.taskManager.Tasks.*")
 public class TasksApplication {
 
 

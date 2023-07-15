@@ -1,5 +1,6 @@
 package com.taskManager.Tasks.RequestModels;
 
+import com.taskManager.Tasks.Enum.UserStatus;
 import com.taskManager.Tasks.Models.Project;
 import com.taskManager.Tasks.Models.Task;
 import jakarta.persistence.Column;
@@ -22,15 +23,21 @@ public class UserRequest {
 
     private String lastName;
 
+    private String password;
+
 
     private String userOccupation;
 
 
-    private String userStatus;
+    private UserStatus userStatus;
+
+    private String dateJoined;
 
 
     private List<Long> projectIds;
 
 
     private List<Long> tasksIds;
+
+    private String AccessToken;
 }

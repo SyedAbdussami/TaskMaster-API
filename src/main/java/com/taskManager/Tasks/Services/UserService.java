@@ -1,6 +1,9 @@
 package com.taskManager.Tasks.Services;
 
 import com.taskManager.Tasks.DTOs.TaskDTO;
+import com.taskManager.Tasks.DTOs.UserDTO;
+import com.taskManager.Tasks.Enum.Role;
+import com.taskManager.Tasks.Enum.UserStatus;
 import com.taskManager.Tasks.Exception.CustomException;
 import com.taskManager.Tasks.Models.Task;
 import com.taskManager.Tasks.Models.User;
@@ -12,12 +15,13 @@ import com.taskManager.Tasks.RequestModels.UserRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,13 +35,34 @@ public class UserService {
 
     ModelMapper mapper=new ModelMapper();
 
-    public void addUser(User user){
+    @Autowired
+    PasswordEncoder bCryptPasswordEncoder;
+    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+    public UserDTO registerUser(UserRequest userRequest){
+        userRequest.setDateJoined(dtf.format(LocalDateTime.now()));
+        User user=mapper.map(userRequest,User.class);
         if(userCreatedVerification(user)){
 //            System.out.println("User already exits");
 //            return;
-            throw new CustomException("User Already Exists","Please contact the admin", HttpStatus.BAD_REQUEST);
+            throw new CustomException("User ","Please contact the admin", HttpStatus.BAD_REQUEST);
+        }
+        user.setUserStatus(UserStatus.CREATED);
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        userRepo.save(user);
+        user.setUserId(userRepo.findUserByUserName(userRequest.getUserName()).getUserId());
+        return mapper.map(userRepo.findUserByUserName(userRequest.getUserName()),UserDTO.class);
+    }
+
+    public void approveUserRequest(UserRequest userRequest){
+        User user=mapper.map(userRequest,User.class);
+        if(userCreatedVerification(user)){
+//            System.out.println("User already exits");
+//            return;
+            throw new CustomException("User ","Please contact the admin", HttpStatus.BAD_REQUEST);
         }
         //admin token verification
+        user.setUserStatus(UserStatus.PENDING);
+        user.setUserRole(Role.valueOf("USER_ROLE"));
         userRepo.save(user);
     }
     public List<User> getAllUsers(){
@@ -141,6 +166,26 @@ public class UserService {
             userList.add(user);
         }
         return userList;
+    }
+
+    public boolean approveUser(UUID userId){
+        User user=getUserById(userId);
+        //check admin privilege
+        if(!user.getUserRole().equals(Role.valueOf("USER_ROLE"))){
+            throw new CustomException("You do not have permission","Please contact the admin",HttpStatus.BAD_REQUEST);
+        }
+        if(userCreatedVerificationUsingId(userId)&&user.getUserStatus().equals(UserStatus.valueOf("APPROVED"))){
+            throw new CustomException("User Already Approved","Proceed",HttpStatus.ACCEPTED);
+        }
+//        user.setUserStatus(UserStatus.valueOf("APPROVED"));
+        user.setUserRole(Role.USER_ROLE);
+        user.setUserStatus(UserStatus.APPROVED);
+        return user.getUserStatus().equals(UserStatus.valueOf("APPROVED"));
+    }
+
+    public boolean checkUserIsAdmin(UUID userID){
+        User user=getUserById(userID);
+        return user.getUserRole().equals(Role.USER_ADMIN);
     }
 
 }

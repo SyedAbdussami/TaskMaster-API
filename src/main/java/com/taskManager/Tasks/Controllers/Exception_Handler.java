@@ -26,7 +26,8 @@ public class Exception_Handler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<?> handleAnyException(Exception ex){
         CustomExceptionResponse customExceptionResponse=mapper.map(ex,CustomExceptionResponse.class);
-        System.out.println(customExceptionResponse);
+        System.out.println(ex.getMessage());
+        System.out.println(customExceptionResponse.getErrorMessage());
         customExceptionResponse.setDate(new Date(System.currentTimeMillis()));
         return new ResponseEntity<>(customExceptionResponse,HttpStatus.INTERNAL_SERVER_ERROR);
 
