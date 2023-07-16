@@ -1,5 +1,6 @@
 package com.taskManager.Tasks.RequestModels;
 
+import com.taskManager.Tasks.Enum.Role;
 import com.taskManager.Tasks.Enum.UserStatus;
 import com.taskManager.Tasks.Models.Project;
 import com.taskManager.Tasks.Models.Task;
@@ -40,4 +41,6 @@ public class UserRequest {
     private List<Long> tasksIds;
 
     private String AccessToken;
+
+    private Role requestedRole;
 }

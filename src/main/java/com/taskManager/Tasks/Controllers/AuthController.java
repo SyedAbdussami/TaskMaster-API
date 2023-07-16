@@ -2,6 +2,7 @@ package com.taskManager.Tasks.Controllers;
 
 
 import com.taskManager.Tasks.DTOs.UserDTO;
+import com.taskManager.Tasks.Enum.UserStatus;
 import com.taskManager.Tasks.RequestModels.UserRequest;
 import com.taskManager.Tasks.Services.UserService;
 import org.modelmapper.ModelMapper;
@@ -29,7 +30,7 @@ public class AuthController {
         //registerUser
         UserDTO userDTO=userService.registerUser(userRequest);
         System.out.println(userRequest.getUserName()+" sign-ing up ");
-        userDTO.setApprovalStatus("User Created pending approval. Please login to get status");
+        userDTO.setUserStatus(UserStatus.CREATED);
         return new ResponseEntity<>(userDTO, HttpStatus.ACCEPTED);
     }
 

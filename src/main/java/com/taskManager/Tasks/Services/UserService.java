@@ -53,17 +53,15 @@ public class UserService {
         return mapper.map(userRepo.findUserByUserName(userRequest.getUserName()),UserDTO.class);
     }
 
-    public void approveUserRequest(UserRequest userRequest){
-        User user=mapper.map(userRequest,User.class);
-        if(userCreatedVerification(user)){
-//            System.out.println("User already exits");
-//            return;
-            throw new CustomException("User ","Please contact the admin", HttpStatus.BAD_REQUEST);
+    public UserDTO approveUserRequest(UUID userId){
+        //Future:Authenticate requesting user and log the approval request
+        User user=getUserById(userId);
+        if(user.getUserRole() != null){
+            throw new CustomException("User already approved","Try again for another user or contact the admin", HttpStatus.BAD_REQUEST);
         }
-        //admin token verification
         user.setUserStatus(UserStatus.PENDING);
-        user.setUserRole(Role.valueOf("USER_ROLE"));
         userRepo.save(user);
+        return mapper.map(user,UserDTO.class);
     }
     public List<User> getAllUsers(){
         return (List<User>) userRepo.findAll();
@@ -88,6 +86,10 @@ public class UserService {
 
     //complete user update.
     public User updateUser(UserRequest userRequest, UUID userId){
+        UUID userId1=userRepo.findUserByUserName(userRequest.getUserName()).getUserId();
+        if(!checkUserIsAdmin(userId1)){
+            throw new CustomException("You don't have the necessary permissions to complete this task","contact the admin",HttpStatus.BAD_REQUEST);
+        }
         if(getUserById(userId)==null){
             throw new CustomException("User does not exist","Please contact the admin", HttpStatus.BAD_REQUEST);
         }
@@ -136,6 +138,10 @@ public class UserService {
     }
 
     public boolean deleteUser(UUID userId,String userName){
+        UUID userId1=userRepo.findUserByUserName(userName).getUserId();
+        if(!checkUserIsAdmin(userId1)){
+            throw new CustomException("You don't have the necessary permissions to complete this task","contact the admin",HttpStatus.BAD_REQUEST);
+        }
         if(!userCreatedVerificationUsingId(userId)){
             throw new CustomException("User for the given info does not exists","Pls contact admin",HttpStatus.NOT_FOUND);
         }
@@ -168,18 +174,22 @@ public class UserService {
         return userList;
     }
 
-    public boolean approveUser(UUID userId){
+    public boolean approveUser(UUID userId,UserRequest userRequest){
         User user=getUserById(userId);
-        //check admin privilege
-        if(!user.getUserRole().equals(Role.valueOf("USER_ROLE"))){
+        User approvingUser=getUserById(userRequest.getUserId());
+        //check admin privilege. future check for admin jwt token
+        if(!checkUserIsAdmin(approvingUser.getUserId())&&!approvingUser.getUserRole().equals(Role.USER_ADMIN)){
             throw new CustomException("You do not have permission","Please contact the admin",HttpStatus.BAD_REQUEST);
         }
-        if(userCreatedVerificationUsingId(userId)&&user.getUserStatus().equals(UserStatus.valueOf("APPROVED"))){
+        if(userCreatedVerificationUsingId(userId)&&user.getUserStatus().equals(UserStatus.APPROVED)){
             throw new CustomException("User Already Approved","Proceed",HttpStatus.ACCEPTED);
         }
-//        user.setUserStatus(UserStatus.valueOf("APPROVED"));
-        user.setUserRole(Role.USER_ROLE);
+        if(userRequest.getRequestedRole().equals(Role.USER_ADMIN)){
+            throw new CustomException("Cannot make user admin.","Please contact the admin",HttpStatus.BAD_REQUEST);
+        }
+        user.setUserRole(userRequest.getRequestedRole());
         user.setUserStatus(UserStatus.APPROVED);
+        userRepo.save(user);
         return user.getUserStatus().equals(UserStatus.valueOf("APPROVED"));
     }
 
@@ -188,4 +198,8 @@ public class UserService {
         return user.getUserRole().equals(Role.USER_ADMIN);
     }
 
+    public  boolean userApprovedVerification(UUID userId,Role role){
+        User user=getUserById(userId);
+        return user.getUserRole().equals(role);
+    }
 }

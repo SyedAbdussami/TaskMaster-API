@@ -49,12 +49,14 @@ public class UserController {
 //        return new ResponseEntity<>(userRequest.getUserName()+" created ",HttpStatus.CREATED);
 //    }
 
-    @PostMapping
-    private ResponseEntity<?> approveUserRequest(@RequestBody UserRequest user) {
-        user.setDateJoined(dtf.format(LocalDateTime.now()));
-        userService.approveUserRequest(user);
+    @PostMapping(value = "/{userId}")
+    private ResponseEntity<?> approveUserRequest(@PathVariable("userId") UUID userId) {
+
+        //Authenticate and log the request
+       UserDTO userDTO= userService.approveUserRequest(userId);
+        userDTO.setDateJoined(dtf.format(LocalDateTime.now()));
 //        userDTO.setDateJoined(dtf.format(LocalDateTime.now()));
-        return new ResponseEntity<>(mapper.map(user, UserDTO.class),HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(userDTO,HttpStatus.ACCEPTED);
     }
 
     @PutMapping(value = "/{userId}")
@@ -63,12 +65,21 @@ public class UserController {
     }
 
     @PostMapping(value = "/{userId}/approve")
-    private ResponseEntity<?> approveUser(@PathVariable("userId") UUID userId){
-        if(userService.approveUser(userId)){
-            return new ResponseEntity<>(userService.getUserById(userId),HttpStatus.ACCEPTED);
+    private ResponseEntity<?> approveUser(@PathVariable("userId") UUID userId,@RequestBody UserRequest userRequest){
+        if(userService.approveUser(userId,userRequest)){
+            return new ResponseEntity<>(mapper.map(userService.getUserById(userId),UserDTO.class),HttpStatus.ACCEPTED);
         }
         return new ResponseEntity<>("Unable to approve the created user. Please Try again",HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @DeleteMapping(value = "/{userId}")
+    private ResponseEntity<?> deleteUser(@PathVariable("userId")UUID userId,@RequestBody UserRequest userRequest){
+        if(!userService.deleteUser(userId,userRequest.getUserName())){
+            return new ResponseEntity<>("Unable to delete User",HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>("User with id "+userId+" deleted",HttpStatus.ACCEPTED) ;
+    }
+
 
 
 

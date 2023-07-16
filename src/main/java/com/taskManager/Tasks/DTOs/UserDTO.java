@@ -1,5 +1,6 @@
 package com.taskManager.Tasks.DTOs;
 
+import com.taskManager.Tasks.Enum.UserStatus;
 import com.taskManager.Tasks.Models.Project;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,11 +18,11 @@ public class UserDTO {
 
     private String occupation;
 
-    private String status;
+//    private String status;
 
     private String dateJoined;
 
-    private String approvalStatus="UnApproved";
+    private UserStatus userStatus;
 
     private String firstName;
 
