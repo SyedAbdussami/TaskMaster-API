@@ -8,6 +8,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -24,4 +25,6 @@ public interface UserRepo extends CrudRepository<User,UUID> {
      User findUserByFirstNameAndLastName(String firstName, String lastName);
 
      List<User> getUsersByUserRole(Role role);
+
+     Optional<User> findByUserName(String username);
 }
