@@ -4,6 +4,7 @@ package com.taskManager.Tasks.Controllers;
 import com.taskManager.Tasks.DTOs.UserDTO;
 import com.taskManager.Tasks.Enum.UserStatus;
 import com.taskManager.Tasks.RequestModels.UserRequest;
+import com.taskManager.Tasks.Services.AuthenticationService;
 import com.taskManager.Tasks.Services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +26,21 @@ public class AuthController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    AuthenticationService authService;
+
     @PostMapping("/signup")
     private ResponseEntity<?> registerUser(@RequestBody UserRequest userRequest){
         //registerUser
-        UserDTO userDTO=userService.registerUser(userRequest);
+        UserDTO userDTO=authService.registerUser(userRequest);
         System.out.println(userRequest.getUserName()+" sign-ing up ");
         userDTO.setUserStatus(UserStatus.CREATED);
         return new ResponseEntity<>(userDTO, HttpStatus.ACCEPTED);
+    }
+
+    @PostMapping("/login")
+    private ResponseEntity<?> loginUser(@RequestBody UserRequest userRequest){
+        return new ResponseEntity<>(authService.loginUser(userRequest), HttpStatus.ACCEPTED);
     }
 
 

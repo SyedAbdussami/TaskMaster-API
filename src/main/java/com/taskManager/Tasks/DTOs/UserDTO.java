@@ -30,5 +30,7 @@ public class UserDTO {
 
     private List<Long> projectIds;
 
+    private String token;
+
 
 }

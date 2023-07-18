@@ -35,24 +35,6 @@ public class UserService {
 
     ModelMapper mapper=new ModelMapper();
 
-    @Autowired
-    PasswordEncoder bCryptPasswordEncoder;
-    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-    public UserDTO registerUser(UserRequest userRequest){
-        userRequest.setDateJoined(dtf.format(LocalDateTime.now()));
-        User user=mapper.map(userRequest,User.class);
-        if(userCreatedVerification(user)){
-//            System.out.println("User already exits");
-//            return;
-            throw new CustomException("User ","Please contact the admin", HttpStatus.BAD_REQUEST);
-        }
-        user.setUserStatus(UserStatus.CREATED);
-        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        userRepo.save(user);
-        user.setUserId(userRepo.findUserByUserName(userRequest.getUserName()).getUserId());
-        return mapper.map(userRepo.findUserByUserName(userRequest.getUserName()),UserDTO.class);
-    }
-
     public UserDTO approveUserRequest(UUID userId){
         //Future:Authenticate requesting user and log the approval request
         User user=getUserById(userId);

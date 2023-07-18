@@ -38,9 +38,9 @@ public class UserController {
         }
         List<UserDTO> userDTOS =new ArrayList<>();
         for(User user:users){
-            if(user.getUserRole().equals(Role.USER_ADMIN)){
-                continue;
-            }
+//            if(user.getUserRole().equals(Role.USER_ADMIN)){
+//                continue;
+//            }
             UserDTO usr1=mapper.map(user,UserDTO.class);
             usr1.setProjectIds(userService.fetchUserProjects(user));
             userDTOS.add(usr1);

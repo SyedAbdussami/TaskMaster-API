@@ -1,5 +1,6 @@
 package com.taskManager.Tasks.Security;
 
+import com.taskManager.Tasks.Models.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -42,14 +43,14 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(Map<String,Object> extraClaims, UserDetails userDetails){
-        return Jwts.builder().setClaims(extraClaims).setSubject(userDetails.getUsername())
+    public String generateToken(Map<String,Object> extraClaims, User userDetails){
+        return Jwts.builder().setClaims(extraClaims).setSubject(userDetails.getUserName())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis()+1000*60*12))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256).compact();
 
     }
-    public String generateToken(UserDetails userDetails){
+    public String generateToken(User userDetails){
         return generateToken(new HashMap<>(),userDetails);
     }
 

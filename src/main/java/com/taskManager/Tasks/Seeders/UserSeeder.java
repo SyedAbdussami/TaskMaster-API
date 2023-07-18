@@ -37,5 +37,18 @@ public class UserSeeder implements CommandLineRunner {
             admin.setPassword(passwordEncoder.encode("coolPassword"));
             userRepo.save(admin);
         }
+        if(userRepo.getUsersByUserRole(Role.USER_MANAGER).isEmpty()){
+            User admin=new User();
+            admin.setUserName("Manager");
+            admin.setFirstName("Syed");
+            admin.setLastName("Abd");
+            admin.setUserRole(Role.USER_MANAGER);
+            admin.setUserOccupation("Manager guy 1");
+            admin.setDateJoined(dtf.format(LocalDateTime.now()));
+            admin.setUserStatus(UserStatus.APPROVED);
+            admin.setPassword(passwordEncoder.encode("coolPassword123"));
+            userRepo.save(admin);
+        }
+
     }
 }
