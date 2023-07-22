@@ -30,7 +30,7 @@ public class WebSecurityConfig {
                 .requestMatchers("/api/auth/signup").permitAll()
                 .requestMatchers(HttpMethod.POST,"/api/auth/login").permitAll()
                 .requestMatchers("/api/user/**").authenticated()
-                .requestMatchers("/api/project/**").authenticated()
+                .requestMatchers("/api/project/**").hasAnyAuthority(Role.USER_ADMIN.name(),Role.USER_MANAGER.name())
 //                .requestMatchers("/api/project/**").authenticated()
                 .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
                 .anyRequest()
