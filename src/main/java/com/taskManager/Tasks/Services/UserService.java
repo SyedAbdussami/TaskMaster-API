@@ -8,21 +8,14 @@ import com.taskManager.Tasks.Exception.CustomException;
 import com.taskManager.Tasks.Models.Task;
 import com.taskManager.Tasks.Models.User;
 import com.taskManager.Tasks.Repositories.ProjectRepo;
-import com.taskManager.Tasks.Repositories.TaskRepo;
 import com.taskManager.Tasks.Repositories.UserRepo;
-import com.taskManager.Tasks.RequestModels.TaskWorkRequest;
 import com.taskManager.Tasks.RequestModels.UserRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -38,7 +31,7 @@ public class UserService {
     public UserDTO approveUserRequest(UUID userId){
         //Future:Authenticate requesting user and log the approval request
         User user=getUserById(userId);
-        if(user.getUserRole() != null){
+        if(user.getUserStatus()==UserStatus.APPROVED){
             throw new CustomException("User already approved","Try again for another user or contact the admin", HttpStatus.BAD_REQUEST);
         }
         user.setUserStatus(UserStatus.PENDING);

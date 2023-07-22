@@ -40,7 +40,7 @@ public class UserRequest {
 
     private List<Long> tasksIds;
 
-    private String AccessToken;
+    private String token;
 
     private Role requestedRole;
 }

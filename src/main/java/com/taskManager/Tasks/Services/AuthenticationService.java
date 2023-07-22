@@ -21,10 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class AuthenticationService {
@@ -55,6 +52,7 @@ public class AuthenticationService {
             throw new CustomException("User ","Please contact the admin", HttpStatus.BAD_REQUEST);
         }
         user.setUserStatus(UserStatus.CREATED);
+        user.setUserRole(Role.NOT_ASSIGNED);
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userRepo.save(user);
         user.setUserId(userRepo.findUserByUserName(userRequest.getUserName()).getUserId());
@@ -69,11 +67,25 @@ public class AuthenticationService {
                 new UsernamePasswordAuthenticationToken(userName,password)
         );
         User user=userRepo.findUserByUserName(userName);
-//        Map<String, List<Role>>map=new HashMap<>();
-//        map.put("Roles", Collections.singletonList(Role.USER_ROLE));
-        String jwtToken=jwtService.generateToken( user);
+        String jwtToken;
+        Map<String,Object>map=new HashMap<>();
+        if(user.getUserStatus()==UserStatus.APPROVED){
+            map.put("Roles", Collections.singletonList(user.getUserRole()));
+            jwtToken=jwtService.generateToken( map,user);
+        }else {
+            jwtToken=jwtService.generateToken(user);
+        }
         UserDTO userDTO=mapper.map(user,UserDTO.class);
         userDTO.setToken(jwtToken);
         return userDTO;
     }
+
+    public boolean permissionCheck(String token,Role role){
+        return jwtService.extractUserRole(token).equals(role);
+    }
+
+    public boolean checkJwtExpiration(String token){
+        return jwtService.isTokenExpired(token);
+    }
+
 }

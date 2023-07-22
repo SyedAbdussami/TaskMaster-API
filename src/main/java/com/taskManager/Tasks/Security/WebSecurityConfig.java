@@ -1,5 +1,6 @@
 package com.taskManager.Tasks.Security;
 
+import com.taskManager.Tasks.Enum.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,10 +27,10 @@ public class WebSecurityConfig {
         httpSecurity.csrf().disable();
 
         httpSecurity.authorizeHttpRequests()
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/user/**").permitAll()
-                .requestMatchers(HttpMethod.POST,"/api/auth/**").permitAll()
-                .requestMatchers(HttpMethod.GET,"/api/project/**").hasAnyRole("ROLE_ADMIN","ROLE_MANAGER")
+                .requestMatchers("/api/auth/signup").permitAll()
+                .requestMatchers(HttpMethod.POST,"/api/auth/login").permitAll()
+                .requestMatchers("/api/user/**").authenticated()
+                .requestMatchers("/api/project/**").authenticated()
 //                .requestMatchers("/api/project/**").authenticated()
                 .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
                 .anyRequest()

@@ -28,7 +28,6 @@ public class UserController {
     UserService userService;
 
     ModelMapper mapper=new ModelMapper();
-    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     @GetMapping
     private ResponseEntity<?> getUsers(){
@@ -52,16 +51,6 @@ public class UserController {
 //        userService.approveUserRequest(userRequest);
 //        return new ResponseEntity<>(userRequest.getUserName()+" created ",HttpStatus.CREATED);
 //    }
-
-    @PostMapping(value = "/{userId}")
-    private ResponseEntity<?> approveUserRequest(@PathVariable("userId") UUID userId) {
-
-        //Authenticate and log the request
-       UserDTO userDTO= userService.approveUserRequest(userId);
-        userDTO.setDateJoined(dtf.format(LocalDateTime.now()));
-//        userDTO.setDateJoined(dtf.format(LocalDateTime.now()));
-        return new ResponseEntity<>(userDTO,HttpStatus.ACCEPTED);
-    }
 
     @PutMapping(value = "/{userId}")
     private ResponseEntity<?> updateUser(@RequestBody UserRequest userRequest, @PathVariable UUID userId){

@@ -43,7 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         jwtToken=authHeader.substring(7);
         final String userName=jwtService.extractClaim(jwtToken, Claims::getSubject);
         //if username is not found in the security context obj initiate user auth flow
-        if(userName==null&& SecurityContextHolder.getContext().getAuthentication()==null){
+        if(userName!=null&& SecurityContextHolder.getContext().getAuthentication()==null){
             UserDetails userDetails= userDetailsService.loadUserByUsername(userName);
             if(jwtService.isTokenValid(jwtToken,userDetails)){
                 UsernamePasswordAuthenticationToken authToken=new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
@@ -52,6 +52,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
             filterChain.doFilter(request,response);
         }
-
     }
 }

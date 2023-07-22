@@ -1,5 +1,6 @@
 package com.taskManager.Tasks.Security;
 
+import com.taskManager.Tasks.Enum.Role;
 import com.taskManager.Tasks.Models.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -44,9 +45,9 @@ public class JwtService {
     }
 
     public String generateToken(Map<String,Object> extraClaims, User userDetails){
-        return Jwts.builder().setClaims(extraClaims).setSubject(userDetails.getUserName())
+        return Jwts.builder().setClaims(extraClaims).setIssuer("api-task-Manager").setSubject(userDetails.getUserName())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+1000*60*12))
+                .setExpiration(new Date(System.currentTimeMillis()+10000*60*12))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256).compact();
 
     }
@@ -56,7 +57,7 @@ public class JwtService {
 
     public boolean isTokenValid(String token,UserDetails userDetails){
         final String userName=extractUserName(token);
-        return userName.equals(userDetails.getUsername()) && isTokenExpired(token);
+        return userName.equals(userDetails.getUsername()) && !isTokenExpired(token);
 
     }
 
@@ -67,6 +68,11 @@ public class JwtService {
 
     public Date extractExpiration(String token){
         return extractClaim(token,Claims::getExpiration);
+    }
+
+    public Role extractUserRole(String token){
+        Claims claims=extractAllClaims(token);
+        return (Role) claims.get("Roles");
     }
 
 }
