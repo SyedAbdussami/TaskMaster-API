@@ -7,6 +7,8 @@ import com.taskManager.Tasks.Models.Project;
 import com.taskManager.Tasks.Models.Task;
 import com.taskManager.Tasks.Models.User;
 import com.taskManager.Tasks.Repositories.ProjectRepo;
+import com.taskManager.Tasks.Security.JwtService;
+import io.jsonwebtoken.Claims;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,9 +29,15 @@ public class ProjectService {
     UserService userService;
     ModelMapper mapper=new ModelMapper();
 
+    @Autowired
+    AuthenticationService authenticationService;
+
     DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
-    public long addProject(Project project){
+    public long addProject(Project project,String token){
+        if(! authenticationService.permissionCheck(token,Role.USER_ADMIN)){
+            throw new CustomException("You do not have permission to change project details","Please send a separate request to Admin",HttpStatus.UNAUTHORIZED);
+        }
         if (project.getUserIds().isEmpty()){
             project.setCreatedAt(dtf.format(LocalDateTime.now()));
             projectRepo.save(project);
@@ -73,14 +81,20 @@ public class ProjectService {
         return projectRepo.getProjectByProjectId(projectId);
     }
 
-    public Project updateProjectDetails(Project project){
+    public Project updateProjectDetails(Project project,String token){
+        if( !authenticationService.permissionCheck(token,Role.USER_ADMIN)){
+            throw new CustomException("You do not have permission to change project details","Please send a separate request to Admin",HttpStatus.UNAUTHORIZED);
+        }
         Project oldProject=getProjectUsingID(project.getProjectId());
         oldProject.setProjectDescription(project.getProjectDescription());
         oldProject.setProjectName(project.getProjectName());
         projectRepo.save(oldProject);
         return oldProject;
     }
-    public boolean deleteProject(String projectName,long projectId ){
+    public boolean deleteProject(String projectName,long projectId,String token ){
+        if( !authenticationService.permissionCheck(token,Role.USER_ADMIN)){
+            throw new CustomException("You do not have the permission to delete this project","Please send a separate request to Admin",HttpStatus.UNAUTHORIZED);
+        }
         if(!(projectRepo.findProjectByProjectName(projectName)==null&&verifyProjectExistsUsingId(projectId))){
             return false;
         }

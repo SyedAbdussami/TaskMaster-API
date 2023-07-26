@@ -31,8 +31,8 @@ public class TaskController {
     }
 
     @PostMapping("/{projectId}/tasks")
-    private ResponseEntity<?> createTask(@PathVariable("projectId") long projectId,@RequestBody TaskRequest taskRequest){
-       TaskDTO taskDTO= taskService.addTask(projectId,taskRequest);
+    private ResponseEntity<?> createTask(@PathVariable("projectId") long projectId,@RequestBody TaskRequest taskRequest,@RequestHeader("Authorization") String token){
+       TaskDTO taskDTO= taskService.addTask(projectId,taskRequest,token.substring(7));
         return new ResponseEntity<>(taskDTO,HttpStatus.ACCEPTED);
     }
 
@@ -46,5 +46,20 @@ public class TaskController {
     private ResponseEntity<?> taskWorkUpdateByUser(@PathVariable("taskId") long taskId, TaskWorkRequest taskWorkRequest, @PathVariable("userId") UUID userId){
         TaskDTO taskDTO= taskService.taskWorkUpdate(taskId,taskWorkRequest,userId);
         return new ResponseEntity<>(taskDTO,HttpStatus.ACCEPTED);
+    }
+
+    @DeleteMapping("/{projectId}/tasks/{taskId}")
+    private ResponseEntity<?> deleteTask(@PathVariable("projectId") long projectId, @PathVariable("taskId") long taskId,@RequestHeader("Authorization") String token){
+        if(taskService.deleteTask(taskId,projectId,token.substring(7))){
+            return new ResponseEntity<>("Task Successfully Deleted",HttpStatus.ACCEPTED);
+        }
+        return new ResponseEntity<>("Task cannot be deleted. Contact the admin or your Manager",HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @PutMapping("/{projectId}/tasks/{taskId}")
+    private ResponseEntity<?> updateTaskDetails(@PathVariable("projectId") long projectId, @PathVariable("taskId") long taskId,@RequestHeader("Authorization") String token,@RequestBody TaskRequest taskRequest){
+        TaskDTO taskDTO=taskService.updateTaskDetails(taskId,projectId,taskRequest,token.substring(7));
+        return new ResponseEntity<>(taskDTO,HttpStatus.ACCEPTED);
+
     }
 }

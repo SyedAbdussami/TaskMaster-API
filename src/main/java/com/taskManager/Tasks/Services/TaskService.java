@@ -42,11 +42,17 @@ public class TaskService {
 
     @Autowired
     ProjectService projectService;
+
+    @Autowired
+    AuthenticationService authenticationService;
     DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     ModelMapper mapper=new ModelMapper();
 
-     public TaskDTO addTask(long projectId,TaskRequest taskRequest){
+     public TaskDTO addTask(long projectId,TaskRequest taskRequest,String token){
+         if( !authenticationService.permissionCheck(token,Role.USER_ADMIN)||!authenticationService.permissionCheck(token,Role.USER_MANAGER)){
+             throw new CustomException("You do not have the permission to create this task","Please send a separate request to Admin or your assigned Manager",HttpStatus.UNAUTHORIZED);
+         }
          Task task=mapper.map(taskRequest,Task.class);
          if(!projectService.verifyProjectExistsUsingId(projectId)&&!userService.verifyUsersCreatedUsingId(taskRequest.getUsers())){
              throw new CustomException("Please verify the project name or the list of user Ids","", HttpStatus.BAD_REQUEST);
@@ -91,7 +97,13 @@ public class TaskService {
     public boolean verifyTaskCreated(long taskId){
          return taskRepo.findById(taskId).isPresent();
     }
-    public TaskDTO updateTaskDetails(long taskId,TaskRequest taskRequest){
+    public TaskDTO updateTaskDetails(long taskId,long projectId,TaskRequest taskRequest,String token){
+        if( !authenticationService.permissionCheck(token,Role.USER_ADMIN)||!authenticationService.permissionCheck(token,Role.USER_MANAGER)){
+            throw new CustomException("You do not have the permission to update this task","Please send a separate request to Admin or your assigned Manager",HttpStatus.UNAUTHORIZED);
+        }
+        if(verifyTaskBelongsToProject(taskId,projectId)){
+            throw new CustomException("Task is not assigned to the given project","Contact your Manager",HttpStatus.BAD_REQUEST);
+        }
          Task oldTask=taskRepo.getTaskByTaskId(taskId);
          Task newTask=mapper.map(taskRequest,Task.class);
          if(Objects.equals(newTask.getTaskName(), oldTask.getTaskName())){
@@ -101,7 +113,13 @@ public class TaskService {
         return mapper.map(newTask,TaskDTO.class);
     }
 
-    public boolean deleteTask(long taskId){
+    public boolean deleteTask(long taskId,long projectId,String token){
+        if( !authenticationService.permissionCheck(token,Role.USER_ADMIN)||!authenticationService.permissionCheck(token,Role.USER_MANAGER)){
+            throw new CustomException("You do not have the permission to delete this task","Please send a separate request to Admin or your assigned Manager",HttpStatus.UNAUTHORIZED);
+        }
+        if(verifyTaskBelongsToProject(taskId,projectId)){
+            throw new CustomException("Task is not assigned to the given project","Contact your Manager",HttpStatus.BAD_REQUEST);
+        }
          Task task=taskRepo.getTaskByTaskId(taskId);
          taskRepo.delete(task);
         return taskRepo.getTaskByTaskId(taskId) == null;
@@ -167,6 +185,11 @@ public class TaskService {
     public boolean checkTaskAccessPrivilege(UUID userId){
         User user=userService.getUserById(userId);
         return !user.getUserRole().equals(Role.valueOf("ROLE_ADMIN"));
+    }
+
+    public boolean verifyTaskBelongsToProject(long taskId,long projectId){
+         Task task=getTaskById(taskId);
+         return  task.getProject().getProjectId()==projectId;
     }
 
 }

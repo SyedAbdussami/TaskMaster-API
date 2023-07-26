@@ -13,11 +13,9 @@ import java.sql.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomExceptionResponse {
-
-    String errorMessage;
+public class CustomExceptionResponse extends Exception{
+    String message;
     String nextSteps;
     HttpStatus httpStatus;
     Date date;
-
 }

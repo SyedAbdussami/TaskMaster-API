@@ -42,11 +42,11 @@ public class ProjectController {
     }
 
     @PostMapping
-    private ResponseEntity<?> addProject(@RequestBody Project project){
+    private ResponseEntity<?> addProject(@RequestBody Project project,@RequestHeader("Authorization") String token){
         if(projectService.projectAlreadyExists(project)){
             throw new CustomException("Project Already Exists","Please Contact the admin",HttpStatus.BAD_REQUEST);
         }
-        long projectId=projectService.addProject(project);
+        long projectId=projectService.addProject(project,token.substring(7));
         System.out.println("new project added successfully");
         ProjectDTO projectDTO=mapper.map(project,ProjectDTO.class);
         projectDTO.setCreatedAt(dtf.format(LocalDateTime.now()));
@@ -55,11 +55,11 @@ public class ProjectController {
     }
 
     @PutMapping(value = "/")
-    private ResponseEntity<?> updateProject(@RequestBody Project project){
+    private ResponseEntity<?> updateProject(@RequestBody Project project,@RequestHeader("Authorization") String token){
         if(!projectService.projectAlreadyExists(project)){
             throw new CustomException("Project doesn't Exists","Please Contact the admin",HttpStatus.BAD_REQUEST);
         }
-        Project project1=projectService.updateProjectDetails(project);
+        Project project1=projectService.updateProjectDetails(project,token.substring(7));
         System.out.println("Project Updated successfully");
         ProjectDTO projectDTO=mapper.map(project1,ProjectDTO.class);
 //        projectDTO.setProjectCreatedDate(dtf.format(LocalDateTime.now()));
@@ -67,11 +67,11 @@ public class ProjectController {
     }
 
     @DeleteMapping("/{projectId}")
-    private ResponseEntity<?> deleteProject(@RequestParam("name") String projectName,@PathVariable("projectId") long projectId){
+    private ResponseEntity<?> deleteProject(@RequestParam("name") String projectName,@PathVariable("projectId") long projectId,@RequestHeader("Authorization") String token){
         if(!projectService.verifyProjectExistsUsingId(projectId)){
             throw new CustomException("Project titled "+projectName+" does not exist","Try again",HttpStatus.BAD_REQUEST);
         }
-        return projectService.deleteProject(projectName,projectId)?new ResponseEntity<>("Project titled deleted",HttpStatus.ACCEPTED):new ResponseEntity<>("Error Occurred try again later",HttpStatus.BAD_REQUEST);
+        return projectService.deleteProject(projectName,projectId,token.substring(7))?new ResponseEntity<>("Project titled deleted",HttpStatus.ACCEPTED):new ResponseEntity<>("Error Occurred try again later",HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping("/{projectId}/users/")

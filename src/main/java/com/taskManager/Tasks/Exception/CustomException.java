@@ -15,7 +15,7 @@ import java.util.List;
 @Setter
 public class CustomException extends RuntimeException{
 
-    String errorMessage;
+    String message;
     String nextSteps;
     HttpStatus httpStatus;
 

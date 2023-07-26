@@ -10,9 +10,11 @@ import com.taskManager.Tasks.Models.User;
 import com.taskManager.Tasks.Repositories.ProjectRepo;
 import com.taskManager.Tasks.Repositories.UserRepo;
 import com.taskManager.Tasks.RequestModels.UserRequest;
+import com.taskManager.Tasks.Security.JwtService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -27,6 +29,9 @@ public class UserService {
     ProjectRepo projectRepo;
 
     ModelMapper mapper=new ModelMapper();
+
+    @Autowired
+    JwtService jwtService;
 
     public UserDTO approveUserRequest(UUID userId){
         //Future:Authenticate requesting user and log the approval request
@@ -176,5 +181,18 @@ public class UserService {
     public  boolean userApprovedVerification(UUID userId,Role role){
         User user=getUserById(userId);
         return user.getUserRole().equals(role);
+    }
+
+    public  String getToken(){
+        String token="";
+        var authentication= SecurityContextHolder.getContext().getAuthentication();
+        if(authentication!=null){
+            token= (String) authentication.getCredentials();
+        }
+        return token;
+    }
+
+    public boolean checkRole(String token,Role role){
+        return jwtService.extractUserRole(token).equals(role);
     }
 }

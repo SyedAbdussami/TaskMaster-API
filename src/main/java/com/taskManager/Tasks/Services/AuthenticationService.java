@@ -69,6 +69,7 @@ public class AuthenticationService {
         User user=userRepo.findUserByUserName(userName);
         String jwtToken;
         Map<String,Object>map=new HashMap<>();
+        map.putIfAbsent("UserId",user.getUserId());
         if(user.getUserStatus()==UserStatus.APPROVED){
             map.put("Roles", Collections.singletonList(user.getUserRole()));
             jwtToken=jwtService.generateToken( map,user);
