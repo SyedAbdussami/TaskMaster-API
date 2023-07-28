@@ -62,4 +62,15 @@ public class TaskController {
         return new ResponseEntity<>(taskDTO,HttpStatus.ACCEPTED);
 
     }
+    @PostMapping("/{projectId}/tasks/{taskId}/users/remove")
+    private ResponseEntity<?> removeUserFromTask(@PathVariable("projectId") long projectId, @PathVariable("taskId") long taskId,@RequestHeader("Authorization") String token,@RequestBody TaskRequest taskRequest){
+        TaskDTO taskDTO=taskService.removeUsersFromTask(taskId,taskRequest.getUsers(),token);
+        return new ResponseEntity<>(taskDTO,HttpStatus.ACCEPTED);
+    }
+
+   @PostMapping("/{projectId}/tasks/{taskId}/status")
+   private ResponseEntity<?> changeTaskStatus(@PathVariable("projectId") long projectId, @PathVariable("taskId") long taskId,@RequestHeader("Authorization")String token,@RequestBody TaskRequest taskRequest){
+        TaskDTO taskDTO=taskService.updateTaskStatus(taskId,taskRequest,token);
+       return new ResponseEntity<>(taskDTO,HttpStatus.ACCEPTED);
+   }
 }

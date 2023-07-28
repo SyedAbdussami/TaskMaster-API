@@ -125,9 +125,12 @@ public class TaskService {
         return taskRepo.getTaskByTaskId(taskId) == null;
     }
 
-    public TaskDTO updateTaskStatus(long taskId,UUID userID,TaskRequest taskRequest){
-         if(!verifyTaskCreated(taskId)&&!userService.userCreatedVerificationUsingId(userID)){
-             throw new CustomException("Task or user does not exist","Try again later",HttpStatus.BAD_REQUEST);
+    public TaskDTO updateTaskStatus(long taskId,TaskRequest taskRequest,String token){
+        if( !authenticationService.permissionCheck(token,Role.USER_ADMIN)||!authenticationService.permissionCheck(token,Role.USER_MANAGER)){
+            throw new CustomException("You do not have the permission to delete this task","Please send a separate request to Admin or your assigned Manager",HttpStatus.UNAUTHORIZED);
+        }
+         if(!verifyTaskCreated(taskId)){
+             throw new CustomException("Task does not exist","Try again later",HttpStatus.BAD_REQUEST);
          }
          Task task=taskRepo.getTaskByTaskId(taskId);
         TaskStatus oldStatus=task.getTaskStatus();
@@ -140,7 +143,10 @@ public class TaskService {
         return mapper.map(task,TaskDTO.class);
     }
 
-    public TaskDTO removeUsersFromTask(long taskId,List<UUID> userIds){
+    public TaskDTO removeUsersFromTask(long taskId,List<UUID> userIds,String token){
+        if( !authenticationService.permissionCheck(token,Role.USER_ADMIN)||!authenticationService.permissionCheck(token,Role.USER_MANAGER)){
+            throw new CustomException("You do not have the permission to delete this task","Please send a separate request to Admin or your assigned Manager",HttpStatus.UNAUTHORIZED);
+        }
          if(!verifyTaskCreated(taskId)&&!userService.verifyUsersCreatedUsingId(userIds)){
              throw new CustomException("Either task or list of users Id's are not correct","Please try again correctly or contact the admin",HttpStatus.BAD_REQUEST);
          }
