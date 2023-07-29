@@ -1,5 +1,6 @@
 package com.taskManager.Tasks.Models;
 
+import com.taskManager.Tasks.Enum.TaskPriority;
 import com.taskManager.Tasks.Enum.TaskStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -32,6 +33,11 @@ public class Task {
     @Enumerated(EnumType.STRING)
     @Column(name="Status")
     private TaskStatus taskStatus;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name="Priority")
+    private TaskPriority taskPriority;
+
 
 //    @Column(name = "Assigned Users")
 //    private List<long> userIds;

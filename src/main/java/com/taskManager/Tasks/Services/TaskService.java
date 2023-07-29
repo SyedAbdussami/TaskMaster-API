@@ -2,6 +2,7 @@ package com.taskManager.Tasks.Services;
 
 import com.taskManager.Tasks.DTOs.TaskDTO;
 import com.taskManager.Tasks.Enum.Role;
+import com.taskManager.Tasks.Enum.TaskPriority;
 import com.taskManager.Tasks.Enum.TaskStatus;
 import com.taskManager.Tasks.Exception.CustomException;
 import com.taskManager.Tasks.Models.Task;
@@ -50,12 +51,16 @@ public class TaskService {
     ModelMapper mapper=new ModelMapper();
 
      public TaskDTO addTask(long projectId,TaskRequest taskRequest,String token){
-         if( !authenticationService.permissionCheck(token,Role.USER_ADMIN)||!authenticationService.permissionCheck(token,Role.USER_MANAGER)){
-             throw new CustomException("You do not have the permission to create this task","Please send a separate request to Admin or your assigned Manager",HttpStatus.UNAUTHORIZED);
-         }
+//         if( !authenticationService.permissionCheck(token,Role.USER_ADMIN)||!authenticationService.permissionCheck(token,Role.USER_MANAGER)){
+//             throw new CustomException("You do not have the permission to create this task","Please send a separate request to Admin or your assigned Manager",HttpStatus.UNAUTHORIZED);
+//         }
+         taskPermissionCheck(token,"create");
          Task task=mapper.map(taskRequest,Task.class);
          if(!projectService.verifyProjectExistsUsingId(projectId)&&!userService.verifyUsersCreatedUsingId(taskRequest.getUsers())){
              throw new CustomException("Please verify the project name or the list of user Ids","", HttpStatus.BAD_REQUEST);
+         }
+         if (taskRequest.getTaskPriority() != null) {
+             task.setTaskPriority(TaskPriority.UNDEFINED);
          }
         taskRepo.save(task);
         TaskDTO taskDTO=mapper.map(task,TaskDTO.class);
@@ -78,8 +83,9 @@ public class TaskService {
     }
 
     public TaskDTO assignUserTask(long projectId, long taskId, UserRequest userRequest){
-         if(!verifyTaskCreated(taskId)&&!projectService.verifyProjectExistsUsingId(projectId)&&!userService.userCreatedVerificationUsingId(userRequest.getUserId())){
-             throw new CustomException("Please check task ID or Project Id or User ID","Contact the admin",HttpStatus.BAD_REQUEST);
+        verifyTaskCreated(taskId);
+         if(!projectService.verifyProjectExistsUsingId(projectId)&&!userService.userCreatedVerificationUsingId(userRequest.getUserId())){
+             throw new CustomException("Please check Project Id","Contact the admin",HttpStatus.BAD_REQUEST);
          }
          Task task=taskRepo.getTaskByTaskId(taskId);
          List<User> users=task.getUsers();
@@ -94,13 +100,16 @@ public class TaskService {
          return updatedTaskDTO;
     }
 
-    public boolean verifyTaskCreated(long taskId){
-         return taskRepo.findById(taskId).isPresent();
+    public void verifyTaskCreated(long taskId){
+         if(taskRepo.findById(taskId).isEmpty()){
+             throw new CustomException("Task does not exist","Try again later",HttpStatus.BAD_REQUEST);
+         }
     }
     public TaskDTO updateTaskDetails(long taskId,long projectId,TaskRequest taskRequest,String token){
-        if( !authenticationService.permissionCheck(token,Role.USER_ADMIN)||!authenticationService.permissionCheck(token,Role.USER_MANAGER)){
-            throw new CustomException("You do not have the permission to update this task","Please send a separate request to Admin or your assigned Manager",HttpStatus.UNAUTHORIZED);
-        }
+//        if( !authenticationService.permissionCheck(token,Role.USER_ADMIN)||!authenticationService.permissionCheck(token,Role.USER_MANAGER)){
+//            throw new CustomException("You do not have the permission to update this task","Please send a separate request to Admin or your assigned Manager",HttpStatus.UNAUTHORIZED);
+//        }
+        taskPermissionCheck(token,"update");
         if(verifyTaskBelongsToProject(taskId,projectId)){
             throw new CustomException("Task is not assigned to the given project","Contact your Manager",HttpStatus.BAD_REQUEST);
         }
@@ -114,9 +123,10 @@ public class TaskService {
     }
 
     public boolean deleteTask(long taskId,long projectId,String token){
-        if( !authenticationService.permissionCheck(token,Role.USER_ADMIN)||!authenticationService.permissionCheck(token,Role.USER_MANAGER)){
-            throw new CustomException("You do not have the permission to delete this task","Please send a separate request to Admin or your assigned Manager",HttpStatus.UNAUTHORIZED);
-        }
+//        if( !authenticationService.permissionCheck(token,Role.USER_ADMIN)||!authenticationService.permissionCheck(token,Role.USER_MANAGER)){
+//            throw new CustomException("You do not have the permission to delete this task","Please send a separate request to Admin or your assigned Manager",HttpStatus.UNAUTHORIZED);
+//        }
+        taskPermissionCheck(token,"delete");
         if(verifyTaskBelongsToProject(taskId,projectId)){
             throw new CustomException("Task is not assigned to the given project","Contact your Manager",HttpStatus.BAD_REQUEST);
         }
@@ -126,12 +136,11 @@ public class TaskService {
     }
 
     public TaskDTO updateTaskStatus(long taskId,TaskRequest taskRequest,String token){
-        if( !authenticationService.permissionCheck(token,Role.USER_ADMIN)||!authenticationService.permissionCheck(token,Role.USER_MANAGER)){
-            throw new CustomException("You do not have the permission to delete this task","Please send a separate request to Admin or your assigned Manager",HttpStatus.UNAUTHORIZED);
-        }
-         if(!verifyTaskCreated(taskId)){
-             throw new CustomException("Task does not exist","Try again later",HttpStatus.BAD_REQUEST);
-         }
+//        if( !authenticationService.permissionCheck(token,Role.USER_ADMIN)||!authenticationService.permissionCheck(token,Role.USER_MANAGER)){
+//            throw new CustomException("You do not have the permission to delete this task","Please send a separate request to Admin or your assigned Manager",HttpStatus.UNAUTHORIZED);
+//        }
+        taskPermissionCheck(token,"update status of");
+        verifyTaskCreated(taskId);
          Task task=taskRepo.getTaskByTaskId(taskId);
         TaskStatus oldStatus=task.getTaskStatus();
         TaskStatus newStatus=taskRequest.getTaskStatus();
@@ -144,11 +153,13 @@ public class TaskService {
     }
 
     public TaskDTO removeUsersFromTask(long taskId,List<UUID> userIds,String token){
-        if( !authenticationService.permissionCheck(token,Role.USER_ADMIN)||!authenticationService.permissionCheck(token,Role.USER_MANAGER)){
-            throw new CustomException("You do not have the permission to delete this task","Please send a separate request to Admin or your assigned Manager",HttpStatus.UNAUTHORIZED);
-        }
-         if(!verifyTaskCreated(taskId)&&!userService.verifyUsersCreatedUsingId(userIds)){
-             throw new CustomException("Either task or list of users Id's are not correct","Please try again correctly or contact the admin",HttpStatus.BAD_REQUEST);
+//        if( !authenticationService.permissionCheck(token,Role.USER_ADMIN)||!authenticationService.permissionCheck(token,Role.USER_MANAGER)){
+//            throw new CustomException("You do not have the permission to delete this task","Please send a separate request to Admin or your assigned Manager",HttpStatus.UNAUTHORIZED);
+//        }
+        taskPermissionCheck(token,"remove users from");
+        verifyTaskCreated(taskId);
+         if(!userService.verifyUsersCreatedUsingId(userIds)){
+             throw new CustomException("Users Id's are not correct","Please try again correctly or contact the admin",HttpStatus.BAD_REQUEST);
          }
          Task task=taskRepo.getTaskByTaskId(taskId);
          List<UUID> actualUsers= task.getUsers().stream().map(User::getUserId).toList();
@@ -160,9 +171,7 @@ public class TaskService {
     }
 
     public TaskDTO taskWorkUpdate(long taskId, TaskWorkRequest taskWorkRequest, UUID userId){
-        if(verifyTaskCreated(taskId)){
-            throw new CustomException("Given task does not exist","Please try again with a valid task ID",HttpStatus.NOT_FOUND);
-        }
+        verifyTaskCreated(taskId);
         if(userService.userCreatedVerificationUsingId(userId)){
             throw new CustomException("Given task does not exist","Please try again with a valid task ID",HttpStatus.NOT_FOUND);
         }
@@ -181,9 +190,7 @@ public class TaskService {
     }
 
     public long getProjectIdFromTaskId(long taskId){
-        if(!verifyTaskCreated(taskId)){
-            throw new CustomException("Task associated with task Id does not exist","Try again or contact the admin",HttpStatus.NOT_FOUND);
-        }
+        verifyTaskCreated(taskId);
         Task task=getTaskById(taskId);
         return task.getProject().getProjectId();
     }
@@ -196,6 +203,37 @@ public class TaskService {
     public boolean verifyTaskBelongsToProject(long taskId,long projectId){
          Task task=getTaskById(taskId);
          return  task.getProject().getProjectId()==projectId;
+    }
+    public TaskDTO changeTaskPriority(long taskId,TaskPriority taskPriority){
+        verifyTaskCreated(taskId);
+         Task task=getTaskById(taskId);
+         if(task.getTaskPriority()==taskPriority){
+             throw new CustomException("Task priority cannot be changed","Same as requested",HttpStatus.BAD_REQUEST);
+         }
+         task.setTaskPriority(taskPriority);
+         return mapper.map(task,TaskDTO.class);
+    }
+    public void taskPermissionCheck(String token,String actionType){
+        if( !authenticationService.permissionCheck(token,Role.USER_ADMIN)||!authenticationService.permissionCheck(token,Role.USER_MANAGER)){
+            throw new CustomException("You do not have the permission to "+actionType+" this task","Please send a separate request to Admin or your assigned Manager",HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    public List<TaskDTO> getTasksWithPriority(TaskPriority taskPriority){
+         List<TaskDTO> tasks= taskRepo.getTasksByTaskPriority(taskPriority).stream().map(task -> mapper.map(task, TaskDTO.class)).toList();
+         if(tasks.size()==0){
+             throw new CustomException("No Tasks with priority "+taskPriority+" do not exist","Please specify the correct priority",HttpStatus.BAD_REQUEST);
+         }
+         return tasks;
+    }
+
+    public List<User> getUsersAssignedToTask(long taskId){
+         verifyTaskCreated(taskId);
+         List<User> users=userRepo.findUsersByTaskId(taskId);
+         if(users.size()==0){
+             throw new CustomException("No users are assigned to this task","",HttpStatus.NOT_FOUND);
+         }
+         return users;
     }
 
 }

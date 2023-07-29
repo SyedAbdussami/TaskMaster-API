@@ -1,5 +1,6 @@
 package com.taskManager.Tasks.RequestModels;
 
+import com.taskManager.Tasks.Enum.TaskPriority;
 import com.taskManager.Tasks.Enum.TaskStatus;
 import com.taskManager.Tasks.Models.Project;
 import com.taskManager.Tasks.Models.User;
@@ -32,6 +33,8 @@ public class TaskRequest {
 
 
     private List<UUID> users;
+
+    private TaskPriority taskPriority;
 
     public TaskRequest() {
     }
