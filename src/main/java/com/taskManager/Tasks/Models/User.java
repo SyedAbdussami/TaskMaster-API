@@ -60,6 +60,9 @@ public class User {
     @Column(name = "User_Role")
     private Role userRole;
 
+    @OneToMany(mappedBy = "taskWorkId")
+    private List<TaskWork> taskWorks;
+
 //    public User() {
 //    }
 

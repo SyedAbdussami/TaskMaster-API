@@ -204,7 +204,8 @@ public class TaskService {
          Task task=getTaskById(taskId);
          return  task.getProject().getProjectId()==projectId;
     }
-    public TaskDTO changeTaskPriority(long taskId,TaskPriority taskPriority){
+    public TaskDTO changeTaskPriority(long taskId,TaskPriority taskPriority,String token){
+        taskPermissionCheck(token,"Change priority of");
         verifyTaskCreated(taskId);
          Task task=getTaskById(taskId);
          if(task.getTaskPriority()==taskPriority){
@@ -227,8 +228,9 @@ public class TaskService {
          return tasks;
     }
 
-    public List<User> getUsersAssignedToTask(long taskId){
+    public List<User> getUsersAssignedToTask(long taskId,String token){
          verifyTaskCreated(taskId);
+        taskPermissionCheck(token,"get users assigned to");
          List<User> users=userRepo.findUsersByTaskId(taskId);
          if(users.size()==0){
              throw new CustomException("No users are assigned to this task","",HttpStatus.NOT_FOUND);

@@ -2,6 +2,8 @@ package com.taskManager.Tasks.Controllers;
 
 
 import com.taskManager.Tasks.DTOs.TaskDTO;
+import com.taskManager.Tasks.Enum.TaskPriority;
+import com.taskManager.Tasks.Enum.TaskStatus;
 import com.taskManager.Tasks.Models.Task;
 import com.taskManager.Tasks.RequestModels.TaskRequest;
 import com.taskManager.Tasks.RequestModels.TaskWorkRequest;
@@ -72,5 +74,20 @@ public class TaskController {
    private ResponseEntity<?> changeTaskStatus(@PathVariable("projectId") long projectId, @PathVariable("taskId") long taskId,@RequestHeader("Authorization")String token,@RequestBody TaskRequest taskRequest){
         TaskDTO taskDTO=taskService.updateTaskStatus(taskId,taskRequest,token);
        return new ResponseEntity<>(taskDTO,HttpStatus.ACCEPTED);
+   }
+
+   @GetMapping("/tasks/{priority}")
+   private ResponseEntity<?> getAllTasksWithPriority(@PathVariable("priority") TaskPriority taskPriority,@RequestHeader("Authorization") String token){
+        List<TaskDTO> taskDTOS=taskService.getTasksWithPriority(taskPriority);
+        return new ResponseEntity<>(taskDTOS,HttpStatus.ACCEPTED);
+   }
+   @PutMapping("/{projectId}/tasks/{taskId}/{priority}")
+    private ResponseEntity<?> changeTaskPriority(@PathVariable("projectId") long projectId,@PathVariable("taskId") long taskId,@PathVariable("priority") TaskPriority taskPriority,@RequestHeader("Authorization") String token){
+        return new ResponseEntity<>(taskService.changeTaskPriority(taskId,taskPriority,token),HttpStatus.ACCEPTED);
+   }
+
+   @GetMapping("/{projectId}/tasks/{taskId}/users")
+    private ResponseEntity<?> getUsersAssignedToTask(@PathVariable("projectId") long projectId,@PathVariable("taskId") long taskId,@RequestHeader("Authorization")String token){
+        return new ResponseEntity<>(taskService.getUsersAssignedToTask(taskId,token),HttpStatus.ACCEPTED);
    }
 }

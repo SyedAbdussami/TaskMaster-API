@@ -52,6 +52,9 @@ public class Task {
             inverseJoinColumns = @JoinColumn(name="userId"))
     private List<User> users;
 
+    @OneToMany(mappedBy = "taskWorkId")
+    private List<TaskWork> taskWorks;
+
     public Task() {
     }
 }
