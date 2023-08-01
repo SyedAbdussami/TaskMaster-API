@@ -132,5 +132,17 @@ public class ProjectService {
         return user.getUserRole().equals(Role.valueOf("ROLE_ADMIN"));
     }
 
+    public List<UUID> getUsersAssignedToProject(long projectId,long taskId){
+        Project project=getProjectUsingID(projectId);
+        return project.getUserIds();
+    }
+
+    public void checkUserBelongsToProject(UUID userID,long projectId){
+        Project project=getProjectUsingID(projectId);
+        if( !project.getUserIds().contains(userID)){
+            throw new CustomException("User is not part of this project","Please assign them to this project to be given access to the task",HttpStatus.BAD_REQUEST);
+        }
+    }
+
 
 }

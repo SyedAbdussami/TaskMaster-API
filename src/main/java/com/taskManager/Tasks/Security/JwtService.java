@@ -14,6 +14,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Service
@@ -63,7 +64,6 @@ public class JwtService {
 
     public boolean isTokenExpired(String token){
         return extractExpiration(token).before(new Date());
-
     }
 
     public Date extractExpiration(String token){
@@ -73,6 +73,10 @@ public class JwtService {
     public Role extractUserRole(String token){
         Claims claims=extractAllClaims(token);
         return (Role) claims.get("Roles");
+    }
+    public UUID extractUserId(String token){
+        Claims claims=extractAllClaims(token);
+        return (UUID) claims.get("UserId");
     }
 
 }

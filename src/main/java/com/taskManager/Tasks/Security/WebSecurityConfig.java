@@ -29,6 +29,7 @@ public class WebSecurityConfig {
         httpSecurity.authorizeHttpRequests()
                 .requestMatchers("/api/auth/signup").permitAll()
                 .requestMatchers(HttpMethod.POST,"/api/auth/login").permitAll()
+                .requestMatchers("/api/test/home").permitAll()
                 .requestMatchers("/api/user/**").authenticated()
                 .requestMatchers("/api/project/**").hasAnyAuthority(Role.USER_ADMIN.name(),Role.USER_MANAGER.name())
 //                .requestMatchers("/api/project/**").authenticated()

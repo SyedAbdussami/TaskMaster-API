@@ -2,6 +2,7 @@ package com.taskManager.Tasks.Models;
 
 import com.taskManager.Tasks.Models.User;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,6 +18,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -54,63 +56,4 @@ public class Project {
     @Transient
     private List<Long> taskIds;
 
-
-//    @Column(name="Created_Tasks")
-//    @OneToMany
-//    @JoinTable(name="Project_Tasks",
-//    joinColumns = @JoinColumn(name="Project_ID"),
-//    inverseJoinColumns = @JoinColumn(name = "Task_ID"))
-//    private List<Task> tasks;
-
-//    public Project() {
-//    }
-
-    public Project(long project_Id, String projectName, String projectDescription, String createdAt, List<User> users) {
-        this.projectId = project_Id;
-        this.projectName = projectName;
-        this.projectDescription = projectDescription;
-        this.createdAt = createdAt;
-        this.users = users;
-//        this.tasks=tasks;
-    }
-//
-//    public long getProject_Id() {
-//        return project_Id;
-//    }
-//
-//    public String getProjectName() {
-//        return projectName;
-//    }
-//
-//    public String getProjectDescription() {
-//        return projectDescription;
-//    }
-//
-//    public Date getCreatedAt() {
-//        return createdAt;
-//    }
-//
-//    public List<User> getUsers() {
-//        return users;
-//    }
-//
-//    public void setProject_Id(long project_Id) {
-//        this.project_Id = project_Id;
-//    }
-//
-//    public void setProjectName(String projectName) {
-//        this.projectName = projectName;
-//    }
-//
-//    public void setProjectDescription(String projectDescription) {
-//        this.projectDescription = projectDescription;
-//    }
-//
-//    public void setCreatedAt(Date createdAt) {
-//        this.createdAt = createdAt;
-//    }
-//
-//    public void setUsers(List<User> users) {
-//        this.users = users;
-//    }
 }

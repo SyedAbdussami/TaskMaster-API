@@ -195,4 +195,10 @@ public class UserService {
     public boolean checkRole(String token,Role role){
         return jwtService.extractUserRole(token).equals(role);
     }
+
+    public void claimedUserNameCheck(String token,String userName){
+        if(getUserById(jwtService.extractUserId(token)).getUserName().equals(userName)){
+            throw new CustomException("Username in the request payload and token don't match","Please verify the correct credentials and try again",HttpStatus.BAD_REQUEST);
+        }
+    }
 }

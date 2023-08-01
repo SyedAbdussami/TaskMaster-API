@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.naming.AuthenticationException;
@@ -55,6 +56,15 @@ public class Exception_Handler extends ResponseEntityExceptionHandler {
         exceptionResponse.setHttpStatus(HttpStatus.UNAUTHORIZED);
         System.out.println(Arrays.toString(ex.getStackTrace()));
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exceptionResponse);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    protected ResponseEntity<?> maxUploadFileException(MaxUploadSizeExceededException ex){
+        CustomExceptionResponse customExceptionResponse=mapper.map(ex,CustomExceptionResponse.class);
+        customExceptionResponse.setDate(new Date(System.currentTimeMillis()));
+        customExceptionResponse.setHttpStatus(HttpStatus.PAYLOAD_TOO_LARGE);
+        System.out.println(Arrays.toString(ex.getStackTrace()));
+        return new ResponseEntity<>(customExceptionResponse,HttpStatus.BAD_REQUEST);
     }
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<?> handleAnyException(Exception ex){

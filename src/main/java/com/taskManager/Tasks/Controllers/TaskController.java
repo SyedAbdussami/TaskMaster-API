@@ -2,6 +2,7 @@ package com.taskManager.Tasks.Controllers;
 
 
 import com.taskManager.Tasks.DTOs.TaskDTO;
+import com.taskManager.Tasks.DTOs.TaskWorkDTO;
 import com.taskManager.Tasks.Enum.TaskPriority;
 import com.taskManager.Tasks.Enum.TaskStatus;
 import com.taskManager.Tasks.Models.Task;
@@ -13,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,8 +42,8 @@ public class TaskController {
     }
 
     @PostMapping("/{projectId}/tasks/{taskId}")
-    private ResponseEntity<?> assignUserTask(@PathVariable("projectId") long projectId, @PathVariable("taskId") long taskId, @RequestBody UserRequest userRequest){
-        TaskDTO taskDTO=taskService.assignUserTask(projectId,taskId,userRequest);
+    private ResponseEntity<?> assignUserTask(@PathVariable("projectId") long projectId, @PathVariable("taskId") long taskId, @RequestBody UserRequest userRequest,@RequestHeader("Authorization")String token){
+        TaskDTO taskDTO=taskService.assignUserTask(projectId,taskId,userRequest,token.substring(7));
         return new ResponseEntity<>(taskDTO,HttpStatus.ACCEPTED);
     }
 
@@ -66,13 +69,13 @@ public class TaskController {
     }
     @PostMapping("/{projectId}/tasks/{taskId}/users/remove")
     private ResponseEntity<?> removeUserFromTask(@PathVariable("projectId") long projectId, @PathVariable("taskId") long taskId,@RequestHeader("Authorization") String token,@RequestBody TaskRequest taskRequest){
-        TaskDTO taskDTO=taskService.removeUsersFromTask(taskId,taskRequest.getUsers(),token);
+        TaskDTO taskDTO=taskService.removeUsersFromTask(taskId,taskRequest.getUsers(),token.substring(7));
         return new ResponseEntity<>(taskDTO,HttpStatus.ACCEPTED);
     }
 
    @PostMapping("/{projectId}/tasks/{taskId}/status")
    private ResponseEntity<?> changeTaskStatus(@PathVariable("projectId") long projectId, @PathVariable("taskId") long taskId,@RequestHeader("Authorization")String token,@RequestBody TaskRequest taskRequest){
-        TaskDTO taskDTO=taskService.updateTaskStatus(taskId,taskRequest,token);
+        TaskDTO taskDTO=taskService.updateTaskStatus(taskId,taskRequest,token.substring(7));
        return new ResponseEntity<>(taskDTO,HttpStatus.ACCEPTED);
    }
 
@@ -83,11 +86,24 @@ public class TaskController {
    }
    @PutMapping("/{projectId}/tasks/{taskId}/{priority}")
     private ResponseEntity<?> changeTaskPriority(@PathVariable("projectId") long projectId,@PathVariable("taskId") long taskId,@PathVariable("priority") TaskPriority taskPriority,@RequestHeader("Authorization") String token){
-        return new ResponseEntity<>(taskService.changeTaskPriority(taskId,taskPriority,token),HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(taskService.changeTaskPriority(taskId,taskPriority,token.substring(7)),HttpStatus.ACCEPTED);
    }
 
    @GetMapping("/{projectId}/tasks/{taskId}/users")
     private ResponseEntity<?> getUsersAssignedToTask(@PathVariable("projectId") long projectId,@PathVariable("taskId") long taskId,@RequestHeader("Authorization")String token){
-        return new ResponseEntity<>(taskService.getUsersAssignedToTask(taskId,token),HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(taskService.getUsersAssignedToTask(taskId,token.substring(7)),HttpStatus.ACCEPTED);
+   }
+
+   @GetMapping("/{projectId}/tasks/{taskId}/work")
+    private ResponseEntity<?> getAllWorkDoneOnTask(@PathVariable("projectId") long projectId,@PathVariable("taskId") long taskId,@RequestHeader("Authorization")String token){
+        return new ResponseEntity<>(taskService.getAllWorkDoneOnTask(taskId,token.substring(7)),HttpStatus.OK);
+   }
+   @PostMapping("/{projectId}/tasks/{taskId}/work")
+    private ResponseEntity<?> addWorkToTask(@PathVariable("projectId") long projectId, @PathVariable("taskId") long taskId, @RequestBody TaskWorkRequest taskWorkRequest, @RequestParam("File")MultipartFile file,@RequestHeader("Authorization") String token) throws IOException {
+        return new ResponseEntity<>(taskService.createWorkOnTask(taskId,taskWorkRequest,file,token.substring(7)),HttpStatus.ACCEPTED);
+   }
+   @GetMapping("/{projectId}/tasks/{taskId}/work/{taskWorkId}")
+    private ResponseEntity<?>getWorkDoneOnTask(@PathVariable("projectId") long projectId,@PathVariable("taskId") long taskId,@RequestHeader("Authorization")String token,@PathVariable("taskWorkId") long taskWorkId){
+        return new ResponseEntity<>(taskService.getWorkDoneOnTask(taskId,taskWorkId,token.substring(7)),HttpStatus.OK);
    }
 }

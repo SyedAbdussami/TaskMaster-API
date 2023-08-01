@@ -19,13 +19,22 @@ public class TaskWork {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long taskWorkId;
+
     @Column(name = "Log")
     private String log;
+
     @Column(name = "Date")
     private Date date;
 
-//    @Column(name = "Files")
-//    private MultipartFile file;
+    @Column(name="FileName")
+    private String fileName;
+
+    @Column(name = "FileType")
+    private String fileType;
+
+    @Lob
+    @Column(name = "File")
+    private byte[] fileData;
 
     @ManyToOne
     @JoinColumn(name="taskId", nullable=false)
