@@ -27,6 +27,9 @@ public class UserService {
 
     @Autowired
     ProjectRepo projectRepo;
+//
+//    @Autowired
+//    TaskService taskService;
 
     ModelMapper mapper=new ModelMapper();
 
@@ -65,9 +68,8 @@ public class UserService {
     }
 
     //complete user update.
-    public User updateUser(UserRequest userRequest, UUID userId){
-        UUID userId1=userRepo.findUserByUserName(userRequest.getUserName()).getUserId();
-        if(!checkUserIsAdmin(userId1)){
+    public User updateUser(UserRequest userRequest, UUID userId,String token){
+        if(!checkUserIsAdmin(token)){
             throw new CustomException("You don't have the necessary permissions to complete this task","contact the admin",HttpStatus.BAD_REQUEST);
         }
         if(getUserById(userId)==null){
@@ -117,18 +119,23 @@ public class UserService {
         return projectRepo.findProjectsByUserId(user.getUserId());
     }
 
-    public boolean deleteUser(UUID userId,String userName){
-        UUID userId1=userRepo.findUserByUserName(userName).getUserId();
-        if(!checkUserIsAdmin(userId1)){
+    public boolean deleteUser(UUID userId,String token){
+        if(!checkRole(token,Role.USER_ADMIN)){
             throw new CustomException("You don't have the necessary permissions to complete this task","contact the admin",HttpStatus.BAD_REQUEST);
         }
         if(!userCreatedVerificationUsingId(userId)){
             throw new CustomException("User for the given info does not exists","Pls contact admin",HttpStatus.NOT_FOUND);
         }
         User fetchedUser=getUserById(userId);
-        if(!fetchedUser.getUserName().equals(userName)){
-            throw new CustomException("Please verify the provided username is correct","Didn't Match with our records",HttpStatus.NOT_FOUND);
-        }
+
+        //Need to send a message to taskservice to de-assign users. Creating ApplicationEvent
+
+        //updating tasks assigned to the users
+//        List<Task> userAssignedTasks=getAllTasksAssignedToUser(userId);
+//        for(Task task:userAssignedTasks){
+//            taskService.removeUserFromTask(task.getTaskId(),userId,token);
+//        }
+        //deleting taskWorks submitted by users
         userRepo.delete(fetchedUser);
         return true;
     }
@@ -154,11 +161,11 @@ public class UserService {
         return userList;
     }
 
-    public boolean approveUser(UUID userId,UserRequest userRequest){
+    public boolean approveUser(UUID userId,UserRequest userRequest,String token){
         User user=getUserById(userId);
-        User approvingUser=getUserById(userRequest.getUserId());
+//        User approvingUser=getUserById(userRequest.getUserId());
         //check admin privilege. future check for admin jwt token
-        if(!checkUserIsAdmin(approvingUser.getUserId())&&!approvingUser.getUserRole().equals(Role.USER_ADMIN)){
+        if(!checkUserIsAdmin(token)){
             throw new CustomException("You do not have permission","Please contact the admin",HttpStatus.BAD_REQUEST);
         }
         if(userCreatedVerificationUsingId(userId)&&user.getUserStatus().equals(UserStatus.APPROVED)){
@@ -173,14 +180,18 @@ public class UserService {
         return user.getUserStatus().equals(UserStatus.valueOf("APPROVED"));
     }
 
-    public boolean checkUserIsAdmin(UUID userID){
-        User user=getUserById(userID);
-        return user.getUserRole().equals(Role.USER_ADMIN);
+    public boolean checkUserIsAdmin(String token){
+        return jwtService.extractUserRole(token).equals(Role.USER_ADMIN);
     }
 
-    public  boolean userApprovedVerification(UUID userId,Role role){
+    public  boolean userRoleVerification(UUID userId,Role role){
         User user=getUserById(userId);
         return user.getUserRole().equals(role);
+    }
+
+    public boolean userApprovalVerification(UUID userId){
+        User user=getUserById(userId);
+        return user.getUserStatus().equals(UserStatus.APPROVED);
     }
 
     public  String getToken(){
@@ -200,5 +211,8 @@ public class UserService {
         if(getUserById(jwtService.extractUserId(token)).getUserName().equals(userName)){
             throw new CustomException("Username in the request payload and token don't match","Please verify the correct credentials and try again",HttpStatus.BAD_REQUEST);
         }
+    }
+    public List<Task> getAllTasksAssignedToUser(UUID userId){
+        return userRepo.getAllTasksByUserId(userId);
     }
 }

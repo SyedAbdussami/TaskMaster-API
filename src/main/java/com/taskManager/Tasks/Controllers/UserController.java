@@ -53,21 +53,21 @@ public class UserController {
 //    }
 
     @PutMapping(value = "/{userId}")
-    private ResponseEntity<?> updateUser(@RequestBody UserRequest userRequest, @PathVariable UUID userId){
-        return new ResponseEntity<>(mapper.map(userService.updateUser(userRequest,userId),UserDTO.class),HttpStatus.ACCEPTED);
+    private ResponseEntity<?> updateUser(@RequestBody UserRequest userRequest, @PathVariable UUID userId,@RequestHeader("Authorization") String token){
+        return new ResponseEntity<>(mapper.map(userService.updateUser(userRequest,userId,token.substring(7)),UserDTO.class),HttpStatus.ACCEPTED);
     }
 
     @PostMapping(value = "/{userId}/approve")
-    private ResponseEntity<?> approveUser(@PathVariable("userId") UUID userId,@RequestBody UserRequest userRequest){
-        if(userService.approveUser(userId,userRequest)){
+    private ResponseEntity<?> approveUser(@PathVariable("userId") UUID userId,@RequestBody UserRequest userRequest,@RequestHeader("Authorization") String token){
+        if(userService.approveUser(userId,userRequest,token.substring(7))){
             return new ResponseEntity<>(mapper.map(userService.getUserById(userId),UserDTO.class),HttpStatus.ACCEPTED);
         }
         return new ResponseEntity<>("Unable to approve the created user. Please Try again",HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @DeleteMapping(value = "/{userId}")
-    private ResponseEntity<?> deleteUser(@PathVariable("userId")UUID userId,@RequestBody UserRequest userRequest){
-        if(!userService.deleteUser(userId,userRequest.getUserName())){
+    private ResponseEntity<?> deleteUser(@PathVariable("userId")UUID userId,@RequestHeader("Authorization") String token){
+        if(!userService.deleteUser(userId,token.substring(7))){
             return new ResponseEntity<>("Unable to delete User",HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>("User with id "+userId+" deleted",HttpStatus.ACCEPTED) ;

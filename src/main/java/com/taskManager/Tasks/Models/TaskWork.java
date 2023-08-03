@@ -1,6 +1,7 @@
 package com.taskManager.Tasks.Models;
 
 
+import com.taskManager.Tasks.Enum.TaskWorkStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -43,4 +44,9 @@ public class TaskWork {
     @ManyToOne
     @JoinColumn(name="userId", nullable=false)
     private User user;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "Status")
+    private TaskWorkStatus taskWorkStatus;
+
 }

@@ -80,12 +80,12 @@ public class TaskController {
    }
 
    @GetMapping("/tasks/{priority}")
-   private ResponseEntity<?> getAllTasksWithPriority(@PathVariable("priority") TaskPriority taskPriority,@RequestHeader("Authorization") String token){
-        List<TaskDTO> taskDTOS=taskService.getTasksWithPriority(taskPriority);
+   private ResponseEntity<?> getAllTasksWithPriority(@PathVariable("priority") String taskPriority,@RequestHeader("Authorization") String token){
+        List<TaskDTO> taskDTOS=taskService.getTasksWithPriority(taskPriority,token.substring(7));
         return new ResponseEntity<>(taskDTOS,HttpStatus.ACCEPTED);
    }
    @PutMapping("/{projectId}/tasks/{taskId}/{priority}")
-    private ResponseEntity<?> changeTaskPriority(@PathVariable("projectId") long projectId,@PathVariable("taskId") long taskId,@PathVariable("priority") TaskPriority taskPriority,@RequestHeader("Authorization") String token){
+    private ResponseEntity<?> changeTaskPriority(@PathVariable("projectId") long projectId,@PathVariable("taskId") long taskId,@PathVariable("priority") String taskPriority,@RequestHeader("Authorization") String token){
         return new ResponseEntity<>(taskService.changeTaskPriority(taskId,taskPriority,token.substring(7)),HttpStatus.ACCEPTED);
    }
 
@@ -106,4 +106,14 @@ public class TaskController {
     private ResponseEntity<?>getWorkDoneOnTask(@PathVariable("projectId") long projectId,@PathVariable("taskId") long taskId,@RequestHeader("Authorization")String token,@PathVariable("taskWorkId") long taskWorkId){
         return new ResponseEntity<>(taskService.getWorkDoneOnTask(taskId,taskWorkId,token.substring(7)),HttpStatus.OK);
    }
+
+   @PostMapping("/{projectId}/tasks/{taskId}/work/{taskWorkId}/approve")
+    private ResponseEntity<?>approveTaskWork(@PathVariable("projectId") long projectId,@PathVariable("taskId") long taskId,@RequestHeader("Authorization")String token,@PathVariable("taskWorkId") long taskWorkId){
+        return new ResponseEntity<>(taskService.approveTaskWork(taskId,taskWorkId,token.substring(7)),HttpStatus.ACCEPTED);
+   }
+
+    @PostMapping("/{projectId}/tasks/{taskId}/work/{taskWorkId}/reject")
+    private ResponseEntity<?>rejectTaskWork(@PathVariable("projectId") long projectId,@PathVariable("taskId") long taskId,@RequestHeader("Authorization")String token,@PathVariable("taskWorkId") long taskWorkId){
+        return new ResponseEntity<>(taskService.rejectTaskWork(taskId,taskWorkId,token.substring(7)),HttpStatus.ACCEPTED);
+    }
 }

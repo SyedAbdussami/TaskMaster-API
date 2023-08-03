@@ -12,6 +12,8 @@ import java.util.UUID;
 @Repository
 public interface TaskWorkRepo extends CrudRepository<TaskWork,Long> {
 
+    TaskWork getTaskWorkByTaskWorkId(long taskWorkId);
+
     @Query("select TaskWork from TaskWork taskWork where taskWork.task.taskId=:taskId")
     List<TaskWork> getAllByTaskId(long taskId);
 

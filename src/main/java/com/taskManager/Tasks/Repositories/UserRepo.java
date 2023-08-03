@@ -1,6 +1,7 @@
 package com.taskManager.Tasks.Repositories;
 
 import com.taskManager.Tasks.Enum.Role;
+import com.taskManager.Tasks.Models.Task;
 import com.taskManager.Tasks.Models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -30,4 +31,7 @@ public interface UserRepo extends CrudRepository<User,UUID> {
      Optional<User> findByUserName(String username);
      @Query(value = "select User from User User join User.tasks tasks where tasks.taskId=:taskId")
      List<User> findUsersByTaskId(@Param("taskId") long taskId);
+
+     @Query(value = "select task from Task task JOIN task.users user where user.userId= :userId")
+     List<Task> getAllTasksByUserId(@Param("userId") UUID userId);
 }

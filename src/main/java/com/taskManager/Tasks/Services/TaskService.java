@@ -5,6 +5,7 @@ import com.taskManager.Tasks.DTOs.TaskWorkDTO;
 import com.taskManager.Tasks.Enum.Role;
 import com.taskManager.Tasks.Enum.TaskPriority;
 import com.taskManager.Tasks.Enum.TaskStatus;
+import com.taskManager.Tasks.Enum.TaskWorkStatus;
 import com.taskManager.Tasks.Exception.CustomException;
 import com.taskManager.Tasks.Models.Task;
 import com.taskManager.Tasks.Models.TaskWork;
@@ -179,6 +180,20 @@ public class TaskService {
         return mapper.map(task, TaskDTO.class);
     }
 
+    public TaskDTO removeUserFromTask(long taskId, UUID userId, String token) {
+        taskPermissionCheck(token, "remove users from");
+        verifyTaskCreated(taskId);
+        if (!userService.userCreatedVerificationUsingId(userId)) {
+            throw new CustomException("Users Id is not correct", "Please try again correctly or contact the admin", HttpStatus.BAD_REQUEST);
+        }
+        Task task = taskRepo.getTaskByTaskId(taskId);
+       List<User> users=task.getUsers();
+       users.remove(userRepo.findUsersByUserId(userId));
+        task.setUsers(users);
+        taskRepo.save(task);
+        return mapper.map(task, TaskDTO.class);
+    }
+
     public TaskDTO taskWorkUpdate(long taskId, TaskWorkRequest taskWorkRequest, UUID userId) {
         verifyTaskCreated(taskId);
         if (userService.userCreatedVerificationUsingId(userId)) {
@@ -214,14 +229,14 @@ public class TaskService {
         return task.getProject().getProjectId() == projectId;
     }
 
-    public TaskDTO changeTaskPriority(long taskId, TaskPriority taskPriority, String token) {
+    public TaskDTO changeTaskPriority(long taskId, String taskPriority, String token) {
         taskPermissionCheck(token, "Change priority of");
         verifyTaskCreated(taskId);
         Task task = getTaskById(taskId);
-        if (task.getTaskPriority() == taskPriority) {
+        if (task.getTaskPriority() == TaskPriority.valueOf(taskPriority)) {
             throw new CustomException("Task priority cannot be changed", "Same as requested", HttpStatus.BAD_REQUEST);
         }
-        task.setTaskPriority(taskPriority);
+        task.setTaskPriority(TaskPriority.valueOf(taskPriority));
         return mapper.map(task, TaskDTO.class);
     }
 
@@ -231,8 +246,9 @@ public class TaskService {
         }
     }
 
-    public List<TaskDTO> getTasksWithPriority(TaskPriority taskPriority) {
-        List<TaskDTO> tasks = taskRepo.getTasksByTaskPriority(taskPriority).stream().map(task -> mapper.map(task, TaskDTO.class)).toList();
+    public List<TaskDTO> getTasksWithPriority(String taskPriority,String token) {
+        taskPermissionCheck(token,"");
+        List<TaskDTO> tasks = taskRepo.getTasksByTaskPriority(TaskPriority.valueOf(taskPriority)).stream().map(task -> mapper.map(task, TaskDTO.class)).toList();
         if (tasks.size() == 0) {
             throw new CustomException("No Tasks with priority " + taskPriority + " do not exist", "Please specify the correct priority", HttpStatus.BAD_REQUEST);
         }
@@ -259,6 +275,8 @@ public class TaskService {
         userService.claimedUserNameCheck(token,taskWorkRequest.getUserName());
         verifyTaskCreated(taskId);
         TaskWork taskWork = mapper.map(taskWorkRequest, TaskWork.class);
+        taskWork.setTaskWorkStatus(TaskWorkStatus.SUBMITTED);
+        //call to message queue for managers
         try {
             taskWork.setFileData(file.getBytes());
             taskWorkRepo.save(taskWork);
@@ -272,6 +290,31 @@ public class TaskService {
         verifyTaskCreated(taskId);
         taskPermissionCheck(token, "");
         return mapper.map(taskWorkRepo.findById(taskWorkId), TaskWorkDTO.class);
+    }
+
+    public TaskWorkDTO approveTaskWork(long taskId,long taskWorkId,String token){
+        verifyTaskCreated(taskId);
+        taskPermissionCheck(token, "approve a submitted task work for");
+        TaskWork taskWork=taskWorkRepo.getTaskWorkByTaskWorkId(taskWorkId);
+        taskWork.setTaskWorkStatus(TaskWorkStatus.APPROVED);
+        return mapper.map(taskWork,TaskWorkDTO.class);
+    }
+    public TaskWorkDTO rejectTaskWork(long taskId,long taskWorkId,String token){
+        verifyTaskCreated(taskId);
+        taskPermissionCheck(token, "approve a submitted task work for");
+        TaskWork taskWork=taskWorkRepo.getTaskWorkByTaskWorkId(taskWorkId);
+        taskWork.setTaskWorkStatus(TaskWorkStatus.REJECTED);
+        return mapper.map(taskWork,TaskWorkDTO.class);
+    }
+
+    public List<TaskWorkDTO> deleteTaskWork(long taskId,long taskWorkId,String token){
+        verifyTaskCreated(taskId);
+        taskPermissionCheck(token, "approve a submitted task work for");
+        TaskWork taskWork=taskWorkRepo.getTaskWorkByTaskWorkId(taskWorkId);
+        List<TaskWorkDTO> taskWorks= getAllWorkDoneOnTask(taskId, token);
+        taskWorks.remove(mapper.map(taskWork,TaskWorkDTO.class));
+        taskWorkRepo.delete(taskWork);
+        return taskWorks;
     }
 
 }
