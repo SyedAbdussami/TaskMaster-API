@@ -297,6 +297,11 @@ public class TaskService {
         taskPermissionCheck(token, "approve a submitted task work for");
         TaskWork taskWork=taskWorkRepo.getTaskWorkByTaskWorkId(taskWorkId);
         taskWork.setTaskWorkStatus(TaskWorkStatus.APPROVED);
+        if(getAllWorkDoneOnTask(taskId,token).isEmpty()){
+            Task task=getTaskById(taskId);
+            task.setTaskStatus(TaskStatus.PENDING_REVIEW);
+            taskRepo.save(task);
+        }
         return mapper.map(taskWork,TaskWorkDTO.class);
     }
     public TaskWorkDTO rejectTaskWork(long taskId,long taskWorkId,String token){
