@@ -1,5 +1,6 @@
 package com.taskManager.Tasks.Services;
 
+import com.taskManager.Tasks.DTOs.MessageDTO;
 import com.taskManager.Tasks.DTOs.TaskDTO;
 import com.taskManager.Tasks.DTOs.TaskWorkDTO;
 import com.taskManager.Tasks.Enum.Role;
@@ -55,6 +56,9 @@ public class TaskService {
 
     @Autowired
     AuthenticationService authenticationService;
+
+    @Autowired
+    MessageService messageService;
     DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     ModelMapper mapper = new ModelMapper();
@@ -277,6 +281,11 @@ public class TaskService {
         TaskWork taskWork = mapper.map(taskWorkRequest, TaskWork.class);
         taskWork.setTaskWorkStatus(TaskWorkStatus.SUBMITTED);
         //call to message queue for managers
+        MessageDTO  messageDTO=new MessageDTO();
+        messageDTO.setTaskId(taskId);
+        messageDTO.setUserName(taskWorkRequest.getUserName());
+        messageDTO.setContent("New TaskWork created for taskId"+taskId);
+        messageService.createMessage(messageDTO);
         try {
             taskWork.setFileData(file.getBytes());
             taskWorkRepo.save(taskWork);

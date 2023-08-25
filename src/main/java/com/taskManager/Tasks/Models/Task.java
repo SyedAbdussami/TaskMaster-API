@@ -28,7 +28,7 @@ public class Task {
     private String taskDescription;
 
     @Column(name="Date")
-    private Date createdAt;
+    private String createdAt;
 
     @Enumerated(EnumType.STRING)
     @Column(name="Status")
