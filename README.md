@@ -1,4 +1,4 @@
-# Task-Manager-API
+# TaskMaster-API
 
 Welcome to the Task Manager API project repository. This endeavor is an ongoing work, with updates and daily efforts continually being added.
 
